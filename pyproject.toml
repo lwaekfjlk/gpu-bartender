@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "python-project-template"
+name = "gpu_bartender"
 version = "0.0.1"
 description = "A template for python-based research project"
 authors = ["Haofei Yu <yuhaofei44@gmail.com>"]
