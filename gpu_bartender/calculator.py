@@ -1,18 +1,19 @@
-from dataclasses import dataclass, field
 from typing import Optional
+
 from .data_args import DataArgs
 from .finetuning_args import FinetuningArgs
 from .model_args import ModelArgs
 from .optimizer_args import OptimizerArgs
 
+
 class VRAMCalculator:
     def __init__(
-        self, 
-        model_args: ModelArgs, 
-        finetuning_args: FinetuningArgs, 
-        optimizer_args: OptimizerArgs, 
-        data_args: DataArgs, 
-        num_gpus: int = 1, 
+        self,
+        model_args: ModelArgs,
+        finetuning_args: FinetuningArgs,
+        optimizer_args: OptimizerArgs,
+        data_args: DataArgs,
+        num_gpus: int = 1,
         unit: str = "MiB"
     ):
         self.model_args = model_args

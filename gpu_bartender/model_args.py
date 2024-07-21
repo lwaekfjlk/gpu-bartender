@@ -1,5 +1,6 @@
 from dataclasses import dataclass, field
 
+
 @dataclass
 class ModelArgs:
     num_params: int = field(default=1)

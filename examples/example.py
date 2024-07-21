@@ -1,4 +1,10 @@
-from gpu_bartender import VRAMCalculator, ModelArgs, DataArgs, OptimizerArgs, FinetuningArgs
+from gpu_bartender import (
+    DataArgs,
+    FinetuningArgs,
+    ModelArgs,
+    OptimizerArgs,
+    VRAMCalculator,
+)
 
 # Example usage
 model_args = ModelArgs(
