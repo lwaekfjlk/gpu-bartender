@@ -67,7 +67,7 @@ async function calculateGPUUsage() {
     console.error('Error fetching data:', error);
     trainingTime.textContent = 'Error fetching data';
     memoryUtilization.textContent = 'Error fetching data';
-   
+
     powerConsumption.textContent = 'Error fetching data';
 }}
 
