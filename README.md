@@ -1,4 +1,10 @@
-# GPU Bartender
+# GPU Bartender: Predicting and Optimizing GPU Resource Allocation for Large Language Model Training
+
+<p align="center">
+  <a href="https://github.com/Carolzhangzz/frontendiffusion/pulls"><img src="https://img.shields.io/badge/PRs-welcome-brightgreen.svg" alt="PRs Welcome"></a>
+  <a href="https://github.com/Carolzhangzz/FD/stargazers"><img src="https://img.shields.io/github/stars/lwaekfjlk/gpu-bartender" alt="GitHub Stars"></a>
+  <a href="https://github.com/Carolzhangzz/FD/fork"><img src="https://img.shields.io/github/forks/lwaekfjlk/gpu-bartender" alt="GitHub Forks"></a>
+</p>
 
 Estimate the GPU VRAM usage in modern LLM training.
 
