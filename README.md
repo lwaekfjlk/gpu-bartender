@@ -1,4 +1,5 @@
-# GPU Bartender
+# GPU Bartender: Predicting and Optimizing GPU Resource Allocation for Large Language Model Training
+
 
 Estimate the GPU VRAM usage in modern LLM training.
 
@@ -13,7 +14,7 @@ Estimate the GPU VRAM usage in modern LLM training.
 2. Navigate to the frontend directory:
 
     ```bash
-    cd gpu_bartender/src/frontend
+    cd frontend
     ```
 
 3. Install dependencies:
