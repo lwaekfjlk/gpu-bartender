@@ -1,11 +1,11 @@
 import express, { Request, Response } from 'express';
 import bodyParser from 'body-parser';
 import path from 'path';
-import { VRAMCalculator } from './src/backend/calculator';
-import { DataArgs } from './src/backend/dataArgs';
-import { FinetuningArgs } from './src/backend/finetuningArgs';
-import { ModelArgs } from './src/backend/modelArgs';
-import { OptimizerArgs } from './src/backend/optimizerArgs';
+import { VRAMCalculator } from './src/calculator';
+import { DataArgs } from './src/dataArgs';
+import { FinetuningArgs } from './src/finetuningArgs';
+import { ModelArgs } from './src/modelArgs';
+import { OptimizerArgs } from './src/optimizerArgs';
 
 const app = express();
 const port = 3000;
