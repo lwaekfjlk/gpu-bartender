@@ -36,7 +36,7 @@ const { init, parse } = require('es-module-lexer');
 
   const source = 'export var p = 5';
   const [imports, exports] = parse(source);
-  
+
   // Returns "p"
   source.slice(exports[0].s, exports[0].e);
   // Returns "p"

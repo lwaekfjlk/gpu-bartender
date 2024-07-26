@@ -228,7 +228,7 @@ function tryParseImportStatement () {
   pos += 6;
 
   let ch = commentWhitespace(true);
-  
+
   switch (ch) {
     // dynamic import
     case 40/*(*/:
@@ -276,7 +276,7 @@ function tryParseImportStatement () {
       if (ch === 109/*m*/ && source.startsWith('eta', pos + 1) && source.charCodeAt(lastTokenPos) !== 46/*.*/)
         addImport(startPos, startPos, pos + 4, -2);
       return;
-    
+
     default:
       // no space after "import" -> not an import keyword
       if (pos === startPos + 6)
@@ -401,14 +401,14 @@ function tryParseExportStatement () {
         if (ch === 125/*}*/)
           break;
         if (pos === startPos)
-          return syntaxError(); 
+          return syntaxError();
         if (pos > end)
           return syntaxError();
       }
       pos++;
       ch = commentWhitespace(true);
     break;
-    
+
     // export *
     // export * as X
     case 42/***/:
@@ -437,7 +437,7 @@ function tryParseExportStatement () {
 
 /*
  * Ported from Acorn
- *   
+ *
  * MIT License
 
  * Copyright (C) 2012-2020 by various contributors (see AUTHORS)
