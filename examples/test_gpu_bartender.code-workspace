@@ -1,0 +1,14 @@
+{
+	"folders": [
+		{
+			"path": "../../test_gpu_bartender"
+		},
+		{
+			"path": "../python_ver"
+		},
+		{
+			"path": "."
+		}
+	],
+	"settings": {}
+}
