@@ -1,8 +1,9 @@
-from flask import Flask, request, jsonify, send_from_directory
 import os
+
 from calculator import VRAMCalculator
 from data_args import DataArgs
 from finetuning_args import FinetuningArgs
+from flask import Flask, jsonify, request, send_from_directory
 from model_args import ModelArgs
 from optimizer_args import OptimizerArgs
 
@@ -13,7 +14,7 @@ def calculate():
     data = request.json
 
     model_args = ModelArgs(
-        num_params=data['modelSize'] * 1000000, 
+        num_params=data['modelSize'] * 1000000,
         vocab_size=data['vocabSize'],
         hidden_size=data['hiddenSize'],
         num_attention_heads=data['numAttentionHeads'],
