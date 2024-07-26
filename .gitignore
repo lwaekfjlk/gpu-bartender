@@ -163,4 +163,4 @@ cython_debug/
 .DS_store
 
 # dependencies
-node_modules/
+node_modules

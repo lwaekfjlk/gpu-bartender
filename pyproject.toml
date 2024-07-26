@@ -35,6 +35,7 @@ follow_imports = "normal"
 strict = true
 plugins = ["pydantic.mypy"]
 packages = ["gpu_bartender"]
+exclude = "server"
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
