@@ -1,4 +1,4 @@
-from gpu_bartender import (
+from gpu_bartender.server import (
     DataArgs,
     FinetuningArgs,
     ModelArgs,
