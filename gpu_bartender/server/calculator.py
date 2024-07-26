@@ -1,9 +1,9 @@
-from typing import Optional
+from typing import Dict
 
-from .data_args import DataArgs
-from .finetuning_args import FinetuningArgs
-from .model_args import ModelArgs
-from .optimizer_args import OptimizerArgs
+from data_args import DataArgs
+from finetuning_args import FinetuningArgs
+from model_args import ModelArgs
+from optimizer_args import OptimizerArgs
 
 
 class VRAMCalculator:
@@ -57,13 +57,13 @@ class VRAMCalculator:
     def compute_parameters(self) -> float:
         num_params = self.model_args.num_params
         parameters = (self.bytes_per_param * num_params * 10 ** 9) / self.gpu_divisor
-        return parameters
+        return float(parameters)
 
     def calculate_parameters(self) -> float:
         parameters = self.compute_parameters()
         return self.round_num(parameters / self.divisor)
 
-    def compute_activations(self) -> int:
+    def compute_activations(self) -> float:
         hidden_size = self.model_args.hidden_size
         num_attention_heads = self.model_args.num_attention_heads
         num_key_value_heads = self.model_args.num_key_value_heads
@@ -103,7 +103,7 @@ class VRAMCalculator:
 
         activations = layer * num_layers
 
-        return activations
+        return int(activations)
 
     def calculate_activations(self) -> float:
         activations = self.compute_activations()
@@ -114,51 +114,51 @@ class VRAMCalculator:
         sequence_length = self.data_args.sequence_length
         vocab_size = self.model_args.vocab_size
         outputs = 4 * batch_size * sequence_length * vocab_size * 2
-        return outputs
+        return float(outputs)
 
     def calculate_outputs(self) -> float:
         outputs = self.compute_outputs()
         return self.round_num(outputs / self.divisor)
 
-    def compute_gradients(self) -> Optional[float]:
+    def compute_gradients(self) -> float:
         num_params = self.model_args.num_params
         gradients = (4 * num_params * 10 ** 9) / self.gpu_divisor
-        return gradients
+        return float(gradients)
 
-    def calculate_gradients(self) -> Optional[float]:
+    def calculate_gradients(self) -> float:
         gradients = self.compute_gradients()
         return self.round_num(gradients / self.divisor)
 
-    def compute_first_moments(self) -> Optional[float]:
+    def compute_first_moments(self) -> float:
         optimizer = self.optimizer_args.optimizer
         optimizer_sgd_momentum = self.optimizer_args.optimizer_sgd_momentum
         if not ((optimizer == 'SGD' and optimizer_sgd_momentum) or optimizer == 'Adam'):
-            return None
+            raise ValueError("First moments are only calculated for Adam or SGD optimizer with momentum")
         num_params = self.model_args.num_params
         first_moments = (4 * num_params * 10 ** 9) / self.gpu_divisor
-        return first_moments
+        return float(first_moments)
 
-    def calculate_first_moments(self) -> Optional[float]:
+    def calculate_first_moments(self) -> float:
         first_moments = self.compute_first_moments()
         if first_moments is None:
-            return None
+            raise ValueError("First moments are only calculated for Adam or SGD optimizer with momentum")
         return self.round_num(first_moments / self.divisor)
 
-    def compute_second_moments(self) -> Optional[float]:
+    def compute_second_moments(self) -> float:
         optimizer = self.optimizer_args.optimizer
         if optimizer != 'Adam':
-            return None
+            raise ValueError("Second moments are only calculated for Adam optimizer")
         num_params = self.model_args.num_params
         second_moments = (4 * num_params * 10 ** 9) / self.gpu_divisor
-        return second_moments
+        return float(second_moments)
 
-    def calculate_second_moments(self) -> Optional[float]:
+    def calculate_second_moments(self) -> float:
         second_moments = self.compute_second_moments()
         if second_moments is None:
-            return None
+            raise ValueError("Second moments are only calculated for Adam optimizer")
         return self.round_num(second_moments / self.divisor)
 
-    def estimate_result(self) -> dict:
+    def estimate_result(self) -> Dict[str, float]:
         result_estimation = {
             'cudaKernels': self.calculate_cuda_kernels(),
             'parameters': self.calculate_parameters(),
@@ -171,7 +171,7 @@ class VRAMCalculator:
 
         return result_estimation
 
-    def get_total_usage_per_gpu(self, result_estimation: dict, is_first: bool) -> float:
+    def get_total_usage_per_gpu(self, result_estimation: Dict[str, float], is_first: bool) -> float:
         total_usage = (
             result_estimation['cudaKernels'] +
             result_estimation['parameters'] +

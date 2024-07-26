@@ -161,3 +161,8 @@ cython_debug/
 
 # macOS system files
 .DS_store
+
+# frontend
+
+# dependencies
+frontend/node_modules

@@ -1,4 +1,5 @@
 {
+<<<<<<< HEAD
   "compilerOptions": {
     "target": "ES6",
     "module": "ES6",
@@ -14,3 +15,20 @@
   "include": ["./**/*.ts"],
   "exclude": ["node_modules"]
 }
+=======
+    "compilerOptions": {
+      "target": "ES6",
+      "module": "commonjs",
+      "outDir": "./dist",
+      "rootDir": "./",
+      "strict": true,
+      "esModuleInterop": true,
+      "skipLibCheck": true,
+      "forceConsistentCasingInFileNames": true,
+      "moduleResolution": "node",
+      "allowSyntheticDefaultImports": true
+    },
+    "include": ["src/backend/**/*", "src/frontend/**/*", "./server.ts"],
+    "exclude": ["node_modules"]
+  }
+>>>>>>> ee07b180167f967103b8d46abf1726d012cec032
