@@ -26,13 +26,11 @@
             Model Parameters
           </h2>
           <div class="form-group">
-<<<<<<< HEAD
             <label>Precision:</label>
             <div class="toggle-buttons">
               <button class="toggle-btn active" id="mixedPrecision">mixed</button>
               <button class="toggle-btn" id="fullPrecision">full (fp32)</button>
             </div>
-            <button class="info-btn" id="precisionInfo">?</button>
           </div>
           <div class="form-group">
             <label>Optimizer:</label>
@@ -44,35 +42,22 @@
             <input type="checkbox" id="momentum" checked> momentum
           </label>
           <div class="form-group">
-=======
->>>>>>> f7196fbfd8e0ccfafbd1a9551aced22494cb0aa1
-            <label for="modelSize"
-              >Model size (in millions of parameters):</label
-            >
-            <input type="number" id="modelSize" min="1" required />
-          </div>
-          <div class="form-group">
             <label for="batchSize">Batch size:</label>
             <input type="number" id="batchSize" min="1" required />
           </div>
           <div class="form-group">
-<<<<<<< HEAD
             <label for="numGPUs">Number of GPUs:</label>
             <input type="number" id="numGPUs" value="1" />
-=======
-            <label for="epochs">Number of epochs:</label>
-            <input type="number" id="epochs" min="1" required />
->>>>>>> f7196fbfd8e0ccfafbd1a9551aced22494cb0aa1
           </div>
 
-          <h2>
+          <!-- <h2>
             <img
               src="https://images.pexels.com/photos/3993917/pexels-photo-3993917.jpeg?auto=compress&cs=tinysrgb&h=350"
               alt="GPU Chip"
             />
             GPU Selection
-          </h2>
-          <div class="form-group">
+          </h2> -->
+          <!-- <div class="form-group">
             <label for="gpuModel">Select GPU model:</label>
             <select id="gpuModel" required>
               <option value="">Choose a GPU</option>
@@ -81,7 +66,7 @@
               <option value="v100">NVIDIA Tesla V100</option>
               <option value="a100">NVIDIA A100</option>
             </select>
-          </div>
+          </div> -->
 
           <h2>
             <img
@@ -90,9 +75,6 @@
             />
             Training Details
           </h2>
-<<<<<<< HEAD
-          <h2>Model Parameters</h2>
-          <p>Model Parameters could be taken from config.json on HuggingFace or directly from model via model.config</p>
           <div class="form-group">
             <label for="parametersPreset">Parameters Preset:</label>
             <select id="parametersPreset">
@@ -101,70 +83,37 @@
           </div>
           <div class="form-group">
             <label for="numParameters">Number of Parameters (billions):</label>
-            <input type="number" id="numParameters" value="1.418" step="0.001" />
+            <input type="number" id="numParameters" value="" step="0.001" />
           </div>
           <div class="form-group">
             <label for="numLayers">Number of Layers:</label>
-            <input type="number" id="numLayers" value="24" />
+            <input type="number" id="numLayers" value="" />
           </div>
           <div class="form-group">
             <label for="vocabSize">Vocab Size:</label>
-            <input type="number" id="vocabSize" value="51200" />
+            <input type="number" id="vocabSize" value="" />
           </div>
           <div class="form-group">
             <label for="hiddenSize">Hidden Size:</label>
-            <input type="number" id="hiddenSize" value="2048" />
+            <input type="number" id="hiddenSize" value="" />
           </div>
           <div class="form-group">
             <label for="numAttentionHeads">Number of Attention Heads:</label>
-            <input type="number" id="numAttentionHeads" value="32" />
+            <input type="number" id="numAttentionHeads" value="" />
           </div>
           <div class="form-group">
             <label for="intermediateSize">Intermediate Size:</label>
-            <input type="number" id="intermediateSize" value="8192" />
+            <input type="number" id="intermediateSize" value="" />
           </div>
           <div class="form-group">
             <label for="numKeyValueHeads">Number of Key Value Heads:</label>
-            <input type="number" id="numKeyValueHeads" value="32" />
-          </div>
-          <div class="form-group">
-            <label>Expanding dimensionality within MLP block. Usually it is 4 x hidden size.</label>
-          </div>
-          <div class="form-group">
-            <label>Might be different from number of attention heads when using Grouped Query Attention</label>
+            <input type="number" id="numKeyValueHeads" value="" />
           </div>
         </div>
-=======
-          <div class="form-group">
-            <label for="learningRate">Learning rate:</label>
-            <input
-              type="number"
-              id="learningRate"
-              step="0.001"
-              min="0"
-              max="1"
-              required
-            />
-          </div>
-          <div class="form-group">
-            <label for="optimizer">Optimizer:</label>
-            <select id="optimizer" required>
-              <option value="">Choose an optimizer</option>
-              <option value="adam">Adam</option>
-              <option value="sgd">SGD</option>
-              <option value="rmsprop">RMSprop</option>
-            </select>
-          </div>
-          <div class="form-group">
-            <label for="dataSize">Data size (in GB):</label>
-            <input type="number" id="dataSize" min="1" required />
-          </div>
->>>>>>> f7196fbfd8e0ccfafbd1a9551aced22494cb0aa1
 
           <button id="calculateBtn">Calculate GPU Usage</button>
         </div>
 
-<<<<<<< HEAD
         <div class="results-section">
           <h2>Estimation Result</h2>
           <div class="toggle-buttons">
@@ -174,47 +123,8 @@
           <div id="vramChart">
             <canvas id="vramChartCanvas"></canvas>
           </div>
-          <p id="totalVRAM">Total VRAM usage is 27836 MiB</p>
           <div class="vram-details">
-            <p><strong>CUDA Kernels</strong> use 1000 MiB of VRAM</p>
-            <p>When PyTorch uses CUDA for the first time, it allocates between 300 MiB and 2 GiB of VRAM</p>
-            <p><strong>Parameters</strong> use 8114 MiB of VRAM</p>
-            <p>Number of Parameters (1.418 billion) × number of bytes per parameter (6; parameters are stored in both full precision and half precision)</p>
-            <p><strong>Activations</strong> use 7104 MiB of VRAM</p>
-            <p>Sum of sizes of all intermediate tensors during forward pass across all 24 layers. Activations size have quadratic dependence on Sequence Length.</p>
-            <p><strong>Gradients</strong> use 5409 MiB of VRAM</p>
-            <p>Gradient is stored for each parameter in full precision, so it is Number of Parameters (1.418 billion) × number of bytes per parameter (4)</p>
-            <p><strong>First Moments</strong> use 5409 MiB of VRAM</p>
-            <p>Optimizer stores moving average of gradients for each parameter in full precision, so it is Number of Parameters (1.418 billion) × number of bytes per parameter (4)</p>
-            <p><strong>Output tensor</strong> uses 800 MiB of VRAM</p>
-            <p>Batch Size (4) × Sequence Length (512) × Vocabulary Size (51200) × number of bytes per parameter (4) × 2 (storing probabilities after softmax output which are the same size as output)</p>
           </div>
-=======
-        <div class="results">
-          <h2>Estimated GPU Usage</h2>
-          <canvas id="gpuUsageChart"></canvas>
-          <div class="key-metrics">
-            <div class="metric">
-              <h3>Estimated Training Time</h3>
-              <p id="trainingTime">-</p>
-            </div>
-            <div class="metric">
-              <h3>Memory Utilization</h3>
-              <p id="memoryUtilization">-</p>
-            </div>
-            <div class="metric">
-              <h3>Power Consumption</h3>
-              <p id="powerConsumption">-</p>
-            </div>
-          </div>
-          <a href="#" class="download-btn" id="downloadResults">
-            <img
-              src="https://images.pexels.com/photos/19237086/pexels-photo-19237086.jpeg?auto=compress&cs=tinysrgb&h=350"
-              alt="Download"
-            />
-            Download Results
-          </a>
->>>>>>> f7196fbfd8e0ccfafbd1a9551aced22494cb0aa1
         </div>
       </div>
     </div>

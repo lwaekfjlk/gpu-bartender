@@ -1,9 +1,8 @@
 from typing import Dict
-
-from gpu_bartender.server.data_args import DataArgs
-from gpu_bartender.server.finetuning_args import FinetuningArgs
-from gpu_bartender.server.model_args import ModelArgs
-from gpu_bartender.server.optimizer_args import OptimizerArgs
+from data_args import DataArgs
+from finetuning_args import FinetuningArgs
+from model_args import ModelArgs
+from optimizer_args import OptimizerArgs
 
 
 class VRAMCalculator:
@@ -166,7 +165,7 @@ class VRAMCalculator:
             'activations': self.calculate_activations(),
             'gradients': self.calculate_gradients(),
             'firstMoments': self.calculate_first_moments(),
-            'secondMoments': self.calculate_second_moments(),
+            'secondMoments': self.calculate_second_moments()
         }
 
         return result_estimation

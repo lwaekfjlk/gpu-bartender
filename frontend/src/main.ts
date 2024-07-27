@@ -7,11 +7,12 @@ document.addEventListener('DOMContentLoaded', () => {
     const sgdOptimizerBtn = document.getElementById('sgdOptimizer') as HTMLButtonElement;
     const mibBtn = document.getElementById('mibBtn') as HTMLButtonElement;
     const gibBtn = document.getElementById('gibBtn') as HTMLButtonElement;
+    const calculateBtn = document.getElementById('calculateBtn') as HTMLButtonElement;
+
 
     //User input elements
     const momentumCheckbox = document.getElementById('momentum') as HTMLInputElement;
     const sequenceLengthInput = document.getElementById('sequenceLength') as HTMLInputElement;
-    const batchSizeInput = document.getElementById('batchSize') as HTMLInputElement;
     const numGPUsInput = document.getElementById('numGPUs') as HTMLInputElement;
     const parametersPresetSelect = document.getElementById('parametersPreset') as HTMLSelectElement;
     const numParametersInput = document.getElementById('numParameters') as HTMLInputElement;
@@ -28,21 +29,57 @@ document.addEventListener('DOMContentLoaded', () => {
 
     let vramUsageChart: Chart | undefined;
 
-    [sequenceLengthInput, batchSizeInput, numGPUsInput, numParametersInput, numLayersInput, 
+    calculateBtn.addEventListener('click', calculateGPUUsage);
+
+    const inputElements = [
+        sequenceLengthInput, numGPUsInput, numParametersInput, numLayersInput, 
+        vocabSizeInput, hiddenSizeInput, numAttentionHeadsInput, intermediateSizeInput, 
+        numKeyValueHeadsInput
+    ];
+
+    inputElements.forEach(input => {
+        if (input) {
+            input.addEventListener('change', calculateGPUUsage);
+        } else {
+            console.error(input, 'Input element not found');
+        }
+    });
+    
+    [sequenceLengthInput, numGPUsInput, numParametersInput, numLayersInput, 
         vocabSizeInput, hiddenSizeInput, numAttentionHeadsInput, intermediateSizeInput, 
         numKeyValueHeadsInput].forEach(input => {
            input.addEventListener('change', calculateGPUUsage);
     });
 
-    [mixedPrecisionBtn, fullPrecisionBtn, 
-        adamOptimizerBtn, sgdOptimizerBtn, mibBtn, gibBtn].forEach(btn => {
-           btn.addEventListener('click', () => {
-               btn.parentElement?.querySelectorAll('.toggle-btn').forEach(b => b.classList.remove('active'));
-               btn.classList.add('active');
-               calculateGPUUsage();
-           });
+    function handleToggleClick(event: Event) {
+        const clickedButton = event.target as HTMLButtonElement;
+        console.log('Clicked button:', clickedButton);
+        if (!clickedButton.classList.contains('toggle-btn')) {
+            console.log('Clicked element is not a toggle button');
+            return;
+        }
+    
+        const toggleGroup = clickedButton.closest('.toggle-buttons');
+        console.log('Toggle group:', toggleGroup);
+        if (!toggleGroup) {
+            console.log('No parent .toggle-buttons found');
+            return;
+        }
+    
+        toggleGroup.querySelectorAll('.toggle-btn').forEach(btn => {
+            btn.classList.remove('active');
+            console.log('Removed active class from:', btn);
+        });
+        clickedButton.classList.add('active');
+        console.log('Added active class to:', clickedButton);
+    
+        calculateGPUUsage();
+    }
+    
+    document.querySelectorAll('.toggle-buttons').forEach(container => {
+        container.addEventListener('click', handleToggleClick);
     });
-
+    
     momentumCheckbox.addEventListener('change', calculateGPUUsage);
     parametersPresetSelect.addEventListener('change', updateModelParameters);
 
@@ -64,8 +101,6 @@ document.addEventListener('DOMContentLoaded', () => {
             intermediateSize,
             numKeyValueHeads
         });
-    
-        calculateGPUUsage();
     }
 
     async function calculateGPUUsage() {
@@ -73,16 +108,15 @@ document.addEventListener('DOMContentLoaded', () => {
         const optimizer = document.querySelector('#adamOptimizer.active') ? 'Adam' : 'SGD';
         const momentum = (document.getElementById('momentum') as HTMLInputElement).checked;
         const sequenceLength = parseInt(sequenceLengthInput.value);
-        const batchSize = parseInt(batchSizeInput.value);
         const numGPUs = parseInt(numGPUsInput.value);
-        const numParams = parseFloat(numParametersInput.value) * 1e9;
+        const numParams = parseFloat(numParametersInput.value);
         const numLayers = parseInt(numLayersInput.value);
         const vocabSize = parseInt(vocabSizeInput.value);
         const hiddenSize = parseInt(hiddenSizeInput.value);
         const numAttentionHeads = parseInt(numAttentionHeadsInput.value);
         const intermediateSize = parseInt(intermediateSizeInput.value);
         const numKeyValueHeads = parseInt(numKeyValueHeadsInput.value);
-
+        const unit = mibBtn.classList.contains('active') ? 'MiB' : 'GiB';
 
         try {
             const response = await fetch('/calculate', {
@@ -95,7 +129,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 optimizer,
                 momentum,
                 sequenceLength,
-                batchSize,
                 numGPUs,
                 numParams,
                 numLayers,
@@ -103,7 +136,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 hiddenSize,
                 numAttentionHeads,
                 intermediateSize,
-                numKeyValueHeads
+                numKeyValueHeads,
+                unit
             })
         });
         if (!response.ok) {
@@ -115,13 +149,14 @@ document.addEventListener('DOMContentLoaded', () => {
         totalVRAMElement.textContent = 'Error calculating VRAM';
     }}
 
-    function updateUI(result: any) {
-        console.log('Updating UI with:', result);
-        
+    function updateUI(response: any) {
+        console.log('Updating UI with:', response);
+        const result = response.result;
+        const totalVRAMUsage = response.totalVRAMUsage;
         const unit = mibBtn.classList.contains('active') ? 'MiB' : 'GiB';
         const divisor = unit === 'MiB' ? 1 : 1024;
 
-        totalVRAMElement.textContent = `Total VRAM usage is ${(result.totalVRAM / divisor).toFixed(2)} ${unit}`;
+        totalVRAMElement.textContent = `Total VRAM usage is ${(totalVRAMUsage / divisor).toFixed(2)} ${unit}`;
 
         updateChart(result, unit);
         updateVRAMDetails(result, unit);
@@ -147,6 +182,7 @@ document.addEventListener('DOMContentLoaded', () => {
             { name: 'Activations', value: result.activations / divisor },
             { name: 'Gradients', value: result.gradients / divisor },
             { name: 'First Moments', value: result.firstMoments / divisor },
+            { name: 'Second Moments', value: result.secondMoments / divisor },
             { name: 'Outputs', value: result.outputs / divisor }
         ];
 
@@ -186,46 +222,18 @@ document.addEventListener('DOMContentLoaded', () => {
 
         vramUsageChart = new Chart(ctx, config);
     }
-
-    function handleToggleClick(event: Event) {
-        const clickedButton = event.target as HTMLButtonElement;
-        if (!clickedButton.classList.contains('toggle-btn')) return;
-
-        const toggleGroup = clickedButton.closest('.toggle-buttons');
-        if (!toggleGroup) return;
-
-        toggleGroup.querySelectorAll('.toggle-btn').forEach(btn => {
-            btn.classList.remove('active');
-        });
-        clickedButton.classList.add('active');
-
-        calculateGPUUsage();
-    }
-
-    document.querySelectorAll('.toggle-buttons').forEach(container => {
-        container.addEventListener('click', handleToggleClick);
-    });
-
-    [mixedPrecisionBtn, fullPrecisionBtn, adamOptimizerBtn, sgdOptimizerBtn, mibBtn, gibBtn].forEach(btn => {
-        btn.removeEventListener('click', handleToggleClick);
-    });
     
     function updateVRAMDetails(result: any, unit: string) {
         const divisor = unit === 'MiB' ? 1 : 1024;
         const vramDetails = document.querySelector('.vram-details') as HTMLDivElement;
         vramDetails.innerHTML = `
-            <p><strong>CUDA Kernels</strong> use ${(result.cudaKernels / divisor).toFixed(2)} ${unit} of VRAM</p>
-            <p>When PyTorch uses CUDA for the first time, it allocates between 300 MiB and 2 GiB of VRAM</p>
-            <p><strong>Parameters</strong> use ${(result.parameters / divisor).toFixed(2)} ${unit} of VRAM</p>
-            <p>Number of Parameters (${(result.numParams / 1e9).toFixed(3)} billion) × number of bytes per parameter (${result.bytesPerParam}; parameters are stored in both full precision and half precision)</p>
-            <p><strong>Activations</strong> use ${(result.activations / divisor).toFixed(2)} ${unit} of VRAM</p>
-            <p>Sum of sizes of all intermediate tensors during forward pass across all ${result.numLayers} layers. Activations size have quadratic dependence on Sequence Length.</p>
-            <p><strong>Gradients</strong> use ${(result.gradients / divisor).toFixed(2)} ${unit} of VRAM</p>
-            <p>Gradient is stored for each parameter in full precision, so it is Number of Parameters (${(result.numParams / 1e9).toFixed(3)} billion) × number of bytes per parameter (4)</p>
-            <p><strong>First Moments</strong> use ${(result.firstMoments / divisor).toFixed(2)} ${unit} of VRAM</p>
-            <p>Optimizer stores moving average of gradients for each parameter in full precision, so it is Number of Parameters (${(result.numParams / 1e9).toFixed(3)} billion) × number of bytes per parameter (4)</p>
-            <p><strong>Output tensor</strong> uses ${(result.outputs / divisor).toFixed(2)} ${unit} of VRAM</p>
-            <p>Batch Size (${result.batchSize}) × Sequence Length (${result.sequenceLength}) × Vocabulary Size (${result.vocabSize}) × number of bytes per parameter (4) × 2 (storing probabilities after softmax output which are the same size as output)</p>
+        <p><strong>CUDA Kernels</strong> use ${(result.cudaKernels / divisor).toFixed(2)} ${unit} of VRAM</p>
+        <p><strong>Parameters</strong> use ${(result.parameters / divisor).toFixed(2)} ${unit} of VRAM</p>
+        <p><strong>Activations</strong> use ${(result.activations / divisor).toFixed(2)} ${unit} of VRAM</p>
+        <p><strong>Gradients</strong> use ${(result.gradients / divisor).toFixed(2)} ${unit} of VRAM</p>
+        <p><strong>First Moments</strong> use ${(result.firstMoments / divisor).toFixed(2)} ${unit} of VRAM</p>
+        <p><strong>Second Moments</strong> use ${(result.secondMoments / divisor).toFixed(2)} ${unit} of VRAM</p>
+        <p><strong>Output tensor</strong> uses ${(result.outputs / divisor).toFixed(2)} ${unit} of VRAM</p>
         `;
     }
     calculateGPUUsage();
