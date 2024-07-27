@@ -156,7 +156,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const unit = mibBtn.classList.contains('active') ? 'MiB' : 'GiB';
         const divisor = unit === 'MiB' ? 1 : 1024;
 
-        totalVRAMElement.textContent = `Total VRAM usage is ${(totalVRAMUsage / divisor).toFixed(2)} ${unit}`;
+        totalVRAMElement.innerHTML = `<strong>Total VRAM usage</strong> is ${(totalVRAMUsage / divisor).toFixed(2)} ${unit}`;
 
         updateChart(result, unit);
         updateVRAMDetails(result, unit);
