@@ -1,24 +1,88 @@
 import Chart from 'chart.js/auto';
 import { ChartConfiguration } from 'chart.js';
 document.addEventListener('DOMContentLoaded', () => {
-    const calculateBtn = document.getElementById('calculateBtn') as HTMLButtonElement;
-    const trainingTime = document.getElementById('trainingTime') as HTMLParagraphElement;
-    const memoryUtilization = document.getElementById('memoryUtilization') as HTMLParagraphElement;
-    const powerConsumption = document.getElementById('powerConsumption') as HTMLParagraphElement;
-    const downloadResults = document.getElementById('downloadResults') as HTMLAnchorElement;
-    let gpuUsageChart: Chart | undefined;
+    const mixedPrecisionBtn = document.getElementById('mixedPrecision') as HTMLButtonElement;
+    const fullPrecisionBtn = document.getElementById('fullPrecision') as HTMLButtonElement;
+    const adamOptimizerBtn = document.getElementById('adamOptimizer') as HTMLButtonElement;
+    const sgdOptimizerBtn = document.getElementById('sgdOptimizer') as HTMLButtonElement;
+    const mibBtn = document.getElementById('mibBtn') as HTMLButtonElement;
+    const gibBtn = document.getElementById('gibBtn') as HTMLButtonElement;
 
-    calculateBtn.addEventListener('click', calculateGPUUsage);
-    downloadResults.addEventListener('click', downloadResultsFile);
+    //User input elements
+    const momentumCheckbox = document.getElementById('momentum') as HTMLInputElement;
+    const sequenceLengthInput = document.getElementById('sequenceLength') as HTMLInputElement;
+    const batchSizeInput = document.getElementById('batchSize') as HTMLInputElement;
+    const numGPUsInput = document.getElementById('numGPUs') as HTMLInputElement;
+    const parametersPresetSelect = document.getElementById('parametersPreset') as HTMLSelectElement;
+    const numParametersInput = document.getElementById('numParameters') as HTMLInputElement;
+    const numLayersInput = document.getElementById('numLayers') as HTMLInputElement;
+    const vocabSizeInput = document.getElementById('vocabSize') as HTMLInputElement;
+    const hiddenSizeInput = document.getElementById('hiddenSize') as HTMLInputElement;
+    const numAttentionHeadsInput = document.getElementById('numAttentionHeads') as HTMLInputElement;
+    const intermediateSizeInput = document.getElementById('intermediateSize') as HTMLInputElement;
+    const numKeyValueHeadsInput = document.getElementById('numKeyValueHeads') as HTMLInputElement;
+
+    // Output elements
+    const totalVRAMElement = document.getElementById('totalVRAM') as HTMLParagraphElement;
+    const vramChartElement = document.getElementById('vramChart') as HTMLDivElement;
+
+    let vramUsageChart: Chart | undefined;
+
+    [sequenceLengthInput, batchSizeInput, numGPUsInput, numParametersInput, numLayersInput, 
+        vocabSizeInput, hiddenSizeInput, numAttentionHeadsInput, intermediateSizeInput, 
+        numKeyValueHeadsInput].forEach(input => {
+           input.addEventListener('change', calculateGPUUsage);
+    });
+
+    [mixedPrecisionBtn, fullPrecisionBtn, 
+        adamOptimizerBtn, sgdOptimizerBtn, mibBtn, gibBtn].forEach(btn => {
+           btn.addEventListener('click', () => {
+               btn.parentElement?.querySelectorAll('.toggle-btn').forEach(b => b.classList.remove('active'));
+               btn.classList.add('active');
+               calculateGPUUsage();
+           });
+    });
+
+    momentumCheckbox.addEventListener('change', calculateGPUUsage);
+    parametersPresetSelect.addEventListener('change', updateModelParameters);
+
+    function updateModelParameters() {
+        const numParameters = numParametersInput.value;
+        const numLayers = numLayersInput.value;
+        const vocabSize = vocabSizeInput.value;
+        const hiddenSize = hiddenSizeInput.value;
+        const numAttentionHeads = numAttentionHeadsInput.value;
+        const intermediateSize = intermediateSizeInput.value;
+        const numKeyValueHeads = numKeyValueHeadsInput.value;
+
+        console.log('Current model parameters:', {
+            numParameters,
+            numLayers,
+            vocabSize,
+            hiddenSize,
+            numAttentionHeads,
+            intermediateSize,
+            numKeyValueHeads
+        });
+    
+        calculateGPUUsage();
+    }
 
     async function calculateGPUUsage() {
-        const modelSize = parseFloat((document.getElementById('modelSize') as HTMLInputElement).value);
-        const batchSize = parseInt((document.getElementById('batchSize') as HTMLInputElement).value);
-        const epochs = parseInt((document.getElementById('epochs') as HTMLInputElement).value);
-        const gpuModel = (document.getElementById('gpuModel') as HTMLSelectElement).value;
-        const learningRate = parseFloat((document.getElementById('learningRate') as HTMLInputElement).value);
-        const optimizer = (document.getElementById('optimizer') as HTMLSelectElement).value;
-        const dataSize = parseFloat((document.getElementById('dataSize') as HTMLInputElement).value);
+        const precision = document.querySelector('#mixedPrecision.active') ? 'mixed' : 'full';
+        const optimizer = document.querySelector('#adamOptimizer.active') ? 'Adam' : 'SGD';
+        const momentum = (document.getElementById('momentum') as HTMLInputElement).checked;
+        const sequenceLength = parseInt(sequenceLengthInput.value);
+        const batchSize = parseInt(batchSizeInput.value);
+        const numGPUs = parseInt(numGPUsInput.value);
+        const numParams = parseFloat(numParametersInput.value) * 1e9;
+        const numLayers = parseInt(numLayersInput.value);
+        const vocabSize = parseInt(vocabSizeInput.value);
+        const hiddenSize = parseInt(hiddenSizeInput.value);
+        const numAttentionHeads = parseInt(numAttentionHeadsInput.value);
+        const intermediateSize = parseInt(intermediateSizeInput.value);
+        const numKeyValueHeads = parseInt(numKeyValueHeadsInput.value);
+
 
         try {
             const response = await fetch('/calculate', {
@@ -27,78 +91,69 @@ document.addEventListener('DOMContentLoaded', () => {
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-                modelSize,
-                batchSize,
-                epochs,
-                gpuModel,
-                learningRate,
+                precision,
                 optimizer,
-                dataSize,
-                numGpus: 1,
-                unit: "MiB",
-                vocabSize: 30522,
-                hiddenSize: 768,
-                numAttentionHeads: 12,
-                numKeyValueHeads: 12,
-                intermediateSize: 3072,
-                numLayers: 12,
-                trainingPrecision: 'mixed',
-                isFsdp: true,
-                optimizerSgdMomentum: null,
-                sequenceLength: 512
+                momentum,
+                sequenceLength,
+                batchSize,
+                numGPUs,
+                numParams,
+                numLayers,
+                vocabSize,
+                hiddenSize,
+                numAttentionHeads,
+                intermediateSize,
+                numKeyValueHeads
             })
         });
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
         }
         const result = await response.json();
-        console.log('Backend response:', result);
-        const estimatedTime = (modelSize * batchSize * epochs) / 1000;
-        const estimatedMemory = (modelSize * 4 + dataSize * 1024) / 1024;
-        const estimatedPower = modelSize * 0.5;
-        const combinedResult = {
-            ...result,
-            estimatedTime,
-            estimatedMemory,
-            estimatedPower
-        };
-        updateUI(combinedResult);
+        updateUI(result);
     } catch (error) {
-        console.error('Error fetching data:', error);
-        trainingTime.textContent = 'Error fetching data';
-        memoryUtilization.textContent = 'Error fetching data';
-
-        powerConsumption.textContent = 'Error fetching data';
+        totalVRAMElement.textContent = 'Error calculating VRAM';
     }}
 
     function updateUI(result: any) {
         console.log('Updating UI with:', result);
-        if (trainingTime) trainingTime.textContent = `${result.estimatedTime.toFixed(2)} hours`;
-        if (memoryUtilization) memoryUtilization.textContent = `${result.estimatedMemory.toFixed(2)} GB`;
-        if (powerConsumption) powerConsumption.textContent = `${result.estimatedPower.toFixed(2)} W`;
+        
+        const unit = mibBtn.classList.contains('active') ? 'MiB' : 'GiB';
+        const divisor = unit === 'MiB' ? 1 : 1024;
 
-        updateChart(result.estimatedTime || 0);
+        totalVRAMElement.textContent = `Total VRAM usage is ${(result.totalVRAM / divisor).toFixed(2)} ${unit}`;
+
+        updateChart(result, unit);
+        updateVRAMDetails(result, unit);
     }
 
-    function updateChart(estimatedTime: number) {
-        const canvas = document.getElementById('gpuUsageChart') as HTMLCanvasElement;
-        const ctx = canvas.getContext('2d');
+    function updateChart(result: any, unit: string) {
+        const vramChartCanvas = document.getElementById('vramChartCanvas') as HTMLCanvasElement;
+        const ctx = vramChartCanvas.getContext('2d');
 
         if (!ctx) {
             console.error('Failed to get 2D context');
             return;
         }
-        if (gpuUsageChart) {
-            gpuUsageChart.destroy();
+
+        if (vramUsageChart) {
+            vramUsageChart.destroy();
         }
 
-        const labels = Array.from({ length: 10 }, (_, i) => i * estimatedTime / 10);
-        const data = labels.map(x => Math.sin(x) * 50 + 50);
+        const divisor = unit === 'MiB' ? 1 : 1024;
+        const data = [
+            { name: 'CUDA Kernels', value: result.cudaKernels / divisor },
+            { name: 'Parameters', value: result.parameters / divisor },
+            { name: 'Activations', value: result.activations / divisor },
+            { name: 'Gradients', value: result.gradients / divisor },
+            { name: 'First Moments', value: result.firstMoments / divisor },
+            { name: 'Outputs', value: result.outputs / divisor }
+        ];
 
         const config: ChartConfiguration = {
             type: 'line',
             data: {
-                labels: labels,
+                labels: data.map(item => item.name),
                 datasets: [{
                     label: 'GPU Usage (%)',
                     data: data,
@@ -129,24 +184,49 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         };
 
-        gpuUsageChart = new Chart(ctx, config);
+        vramUsageChart = new Chart(ctx, config);
     }
 
-    function downloadResultsFile(e: Event) {
-        e.preventDefault();
-        const results = `
-            Estimated Training Time: ${trainingTime.textContent}
-            Memory Utilization: ${memoryUtilization.textContent}
-            Power Consumption: ${powerConsumption.textContent}
-        `;
-        const blob = new Blob([results], { type: 'text/plain' });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = 'gpu_usage_results.txt';
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        URL.revokeObjectURL(url);
+    function handleToggleClick(event: Event) {
+        const clickedButton = event.target as HTMLButtonElement;
+        if (!clickedButton.classList.contains('toggle-btn')) return;
+
+        const toggleGroup = clickedButton.closest('.toggle-buttons');
+        if (!toggleGroup) return;
+
+        toggleGroup.querySelectorAll('.toggle-btn').forEach(btn => {
+            btn.classList.remove('active');
+        });
+        clickedButton.classList.add('active');
+
+        calculateGPUUsage();
     }
+
+    document.querySelectorAll('.toggle-buttons').forEach(container => {
+        container.addEventListener('click', handleToggleClick);
+    });
+
+    [mixedPrecisionBtn, fullPrecisionBtn, adamOptimizerBtn, sgdOptimizerBtn, mibBtn, gibBtn].forEach(btn => {
+        btn.removeEventListener('click', handleToggleClick);
+    });
+    
+    function updateVRAMDetails(result: any, unit: string) {
+        const divisor = unit === 'MiB' ? 1 : 1024;
+        const vramDetails = document.querySelector('.vram-details') as HTMLDivElement;
+        vramDetails.innerHTML = `
+            <p><strong>CUDA Kernels</strong> use ${(result.cudaKernels / divisor).toFixed(2)} ${unit} of VRAM</p>
+            <p>When PyTorch uses CUDA for the first time, it allocates between 300 MiB and 2 GiB of VRAM</p>
+            <p><strong>Parameters</strong> use ${(result.parameters / divisor).toFixed(2)} ${unit} of VRAM</p>
+            <p>Number of Parameters (${(result.numParams / 1e9).toFixed(3)} billion) × number of bytes per parameter (${result.bytesPerParam}; parameters are stored in both full precision and half precision)</p>
+            <p><strong>Activations</strong> use ${(result.activations / divisor).toFixed(2)} ${unit} of VRAM</p>
+            <p>Sum of sizes of all intermediate tensors during forward pass across all ${result.numLayers} layers. Activations size have quadratic dependence on Sequence Length.</p>
+            <p><strong>Gradients</strong> use ${(result.gradients / divisor).toFixed(2)} ${unit} of VRAM</p>
+            <p>Gradient is stored for each parameter in full precision, so it is Number of Parameters (${(result.numParams / 1e9).toFixed(3)} billion) × number of bytes per parameter (4)</p>
+            <p><strong>First Moments</strong> use ${(result.firstMoments / divisor).toFixed(2)} ${unit} of VRAM</p>
+            <p>Optimizer stores moving average of gradients for each parameter in full precision, so it is Number of Parameters (${(result.numParams / 1e9).toFixed(3)} billion) × number of bytes per parameter (4)</p>
+            <p><strong>Output tensor</strong> uses ${(result.outputs / divisor).toFixed(2)} ${unit} of VRAM</p>
+            <p>Batch Size (${result.batchSize}) × Sequence Length (${result.sequenceLength}) × Vocabulary Size (${result.vocabSize}) × number of bytes per parameter (4) × 2 (storing probabilities after softmax output which are the same size as output)</p>
+        `;
+    }
+    calculateGPUUsage();
 });
