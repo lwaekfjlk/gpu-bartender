@@ -91,6 +91,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({
+<<<<<<< HEAD
                 precision,
                 optimizer,
                 momentum,
@@ -104,19 +105,61 @@ document.addEventListener('DOMContentLoaded', () => {
                 numAttentionHeads,
                 intermediateSize,
                 numKeyValueHeads
+=======
+                modelSize,
+                batchSize,
+                epochs,
+                gpuModel,
+                learningRate,
+                optimizer,
+                dataSize,
+                numGpus: 1,
+                unit: "MiB",
+                vocabSize: 30522,
+                hiddenSize: 768,
+                numAttentionHeads: 12,
+                numKeyValueHeads: 12,
+                intermediateSize: 3072,
+                numLayers: 12,
+                trainingPrecision: 'mixed',
+                isFsdp: true,
+                optimizerSgdMomentum: null,
+                sequenceLength: 512
+>>>>>>> f7196fbfd8e0ccfafbd1a9551aced22494cb0aa1
             })
         });
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
         }
         const result = await response.json();
+<<<<<<< HEAD
         updateUI(result);
     } catch (error) {
         totalVRAMElement.textContent = 'Error calculating VRAM';
+=======
+        console.log('Backend response:', result);
+        const estimatedTime = (modelSize * batchSize * epochs) / 1000;
+        const estimatedMemory = (modelSize * 4 + dataSize * 1024) / 1024;
+        const estimatedPower = modelSize * 0.5;
+        const combinedResult = {
+            ...result,
+            estimatedTime,
+            estimatedMemory,
+            estimatedPower
+        };
+        updateUI(combinedResult);
+    } catch (error) {
+        console.error('Error fetching data:', error);
+        trainingTime.textContent = 'Error fetching data';
+        memoryUtilization.textContent = 'Error fetching data';
+
+        powerConsumption.textContent = 'Error fetching data';
+>>>>>>> f7196fbfd8e0ccfafbd1a9551aced22494cb0aa1
     }}
 
     function updateUI(result: any) {
         console.log('Updating UI with:', result);
+<<<<<<< HEAD
         
         const unit = mibBtn.classList.contains('active') ? 'MiB' : 'GiB';
         const divisor = unit === 'MiB' ? 1 : 1024;
@@ -130,11 +173,24 @@ document.addEventListener('DOMContentLoaded', () => {
     function updateChart(result: any, unit: string) {
         const vramChartCanvas = document.getElementById('vramChartCanvas') as HTMLCanvasElement;
         const ctx = vramChartCanvas.getContext('2d');
+=======
+        if (trainingTime) trainingTime.textContent = `${result.estimatedTime.toFixed(2)} hours`;
+        if (memoryUtilization) memoryUtilization.textContent = `${result.estimatedMemory.toFixed(2)} GB`;
+        if (powerConsumption) powerConsumption.textContent = `${result.estimatedPower.toFixed(2)} W`;
+
+        updateChart(result.estimatedTime || 0);
+    }
+
+    function updateChart(estimatedTime: number) {
+        const canvas = document.getElementById('gpuUsageChart') as HTMLCanvasElement;
+        const ctx = canvas.getContext('2d');
+>>>>>>> f7196fbfd8e0ccfafbd1a9551aced22494cb0aa1
 
         if (!ctx) {
             console.error('Failed to get 2D context');
             return;
         }
+<<<<<<< HEAD
 
         if (vramUsageChart) {
             vramUsageChart.destroy();
@@ -149,11 +205,23 @@ document.addEventListener('DOMContentLoaded', () => {
             { name: 'First Moments', value: result.firstMoments / divisor },
             { name: 'Outputs', value: result.outputs / divisor }
         ];
+=======
+        if (gpuUsageChart) {
+            gpuUsageChart.destroy();
+        }
+
+        const labels = Array.from({ length: 10 }, (_, i) => i * estimatedTime / 10);
+        const data = labels.map(x => Math.sin(x) * 50 + 50);
+>>>>>>> f7196fbfd8e0ccfafbd1a9551aced22494cb0aa1
 
         const config: ChartConfiguration = {
             type: 'line',
             data: {
+<<<<<<< HEAD
                 labels: data.map(item => item.name),
+=======
+                labels: labels,
+>>>>>>> f7196fbfd8e0ccfafbd1a9551aced22494cb0aa1
                 datasets: [{
                     label: 'GPU Usage (%)',
                     data: data,
@@ -184,6 +252,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         };
 
+<<<<<<< HEAD
         vramUsageChart = new Chart(ctx, config);
     }
 
@@ -229,4 +298,26 @@ document.addEventListener('DOMContentLoaded', () => {
         `;
     }
     calculateGPUUsage();
+=======
+        gpuUsageChart = new Chart(ctx, config);
+    }
+
+    function downloadResultsFile(e: Event) {
+        e.preventDefault();
+        const results = `
+            Estimated Training Time: ${trainingTime.textContent}
+            Memory Utilization: ${memoryUtilization.textContent}
+            Power Consumption: ${powerConsumption.textContent}
+        `;
+        const blob = new Blob([results], { type: 'text/plain' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'gpu_usage_results.txt';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+    }
+>>>>>>> f7196fbfd8e0ccfafbd1a9551aced22494cb0aa1
 });
