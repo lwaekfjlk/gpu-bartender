@@ -38,16 +38,20 @@
               <button class="toggle-btn active" id="adamOptimizer">Adam</button>
               <button class="toggle-btn" id="sgdOptimizer">SGD</button>
             </div>
-          <label class="checkbox-label">
-            <input type="checkbox" id="momentum" checked> momentum
-          </label>
+            <div class="checkbox-container">
+              <label for="momentum">Momentum <input type="checkbox" id="momentum" checked></label>
+            </div>
+          <div class="form-group">
+            <label for="numGPUs">Sequence Length:</label>
+            <input type="number" id="sequenceLength" value="128"/>
+          </div>
           <div class="form-group">
             <label for="batchSize">Batch size:</label>
-            <input type="number" id="batchSize" min="1" required />
+            <input type="number" id="batchSize" min="1" value="32" required />
           </div>
           <div class="form-group">
             <label for="numGPUs">Number of GPUs:</label>
-            <input type="number" id="numGPUs" value="1" />
+            <input type="number" id="numGPUs" value="4"/>
           </div>
 
           <!-- <h2>
@@ -83,31 +87,31 @@
           </div>
           <div class="form-group">
             <label for="numParameters">Number of Parameters (billions):</label>
-            <input type="number" id="numParameters" value="" step="0.001" />
+            <input type="number" id="numParameters" value="123456789" step="0.001" />
           </div>
           <div class="form-group">
             <label for="numLayers">Number of Layers:</label>
-            <input type="number" id="numLayers" value="" />
+            <input type="number" id="numLayers" value="12" />
           </div>
           <div class="form-group">
             <label for="vocabSize">Vocab Size:</label>
-            <input type="number" id="vocabSize" value="" />
+            <input type="number" id="vocabSize" value="30522" />
           </div>
           <div class="form-group">
             <label for="hiddenSize">Hidden Size:</label>
-            <input type="number" id="hiddenSize" value="" />
+            <input type="number" id="hiddenSize" value="768" />
           </div>
           <div class="form-group">
             <label for="numAttentionHeads">Number of Attention Heads:</label>
-            <input type="number" id="numAttentionHeads" value="" />
+            <input type="number" id="numAttentionHeads" value="12" />
           </div>
           <div class="form-group">
             <label for="intermediateSize">Intermediate Size:</label>
-            <input type="number" id="intermediateSize" value="" />
+            <input type="number" id="intermediateSize" value="3072" />
           </div>
           <div class="form-group">
             <label for="numKeyValueHeads">Number of Key Value Heads:</label>
-            <input type="number" id="numKeyValueHeads" value="" />
+            <input type="number" id="numKeyValueHeads" value="12" />
           </div>
         </div>
 
@@ -123,6 +127,7 @@
           <div id="vramChart">
             <canvas id="vramChartCanvas"></canvas>
           </div>
+          <p id="totalVRAM"></p>
           <div class="vram-details">
           </div>
         </div>

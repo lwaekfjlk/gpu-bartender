@@ -22,19 +22,19 @@ document.addEventListener('DOMContentLoaded', () => {
     const numAttentionHeadsInput = document.getElementById('numAttentionHeads') as HTMLInputElement;
     const intermediateSizeInput = document.getElementById('intermediateSize') as HTMLInputElement;
     const numKeyValueHeadsInput = document.getElementById('numKeyValueHeads') as HTMLInputElement;
-
+    const batchSizeInput = document.getElementById('batchSize') as HTMLInputElement;
+    
     // Output elements
     const totalVRAMElement = document.getElementById('totalVRAM') as HTMLParagraphElement;
     const vramChartElement = document.getElementById('vramChart') as HTMLDivElement;
 
     let vramUsageChart: Chart | undefined;
-
     calculateBtn.addEventListener('click', calculateGPUUsage);
 
     const inputElements = [
         sequenceLengthInput, numGPUsInput, numParametersInput, numLayersInput, 
         vocabSizeInput, hiddenSizeInput, numAttentionHeadsInput, intermediateSizeInput, 
-        numKeyValueHeadsInput
+        numKeyValueHeadsInput, batchSizeInput
     ];
 
     inputElements.forEach(input => {
@@ -43,12 +43,6 @@ document.addEventListener('DOMContentLoaded', () => {
         } else {
             console.error(input, 'Input element not found');
         }
-    });
-    
-    [sequenceLengthInput, numGPUsInput, numParametersInput, numLayersInput, 
-        vocabSizeInput, hiddenSizeInput, numAttentionHeadsInput, intermediateSizeInput, 
-        numKeyValueHeadsInput].forEach(input => {
-           input.addEventListener('change', calculateGPUUsage);
     });
 
     function handleToggleClick(event: Event) {
@@ -91,6 +85,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const numAttentionHeads = numAttentionHeadsInput.value;
         const intermediateSize = intermediateSizeInput.value;
         const numKeyValueHeads = numKeyValueHeadsInput.value;
+        const batchSize = batchSizeInput.value;
 
         console.log('Current model parameters:', {
             numParameters,
@@ -99,7 +94,8 @@ document.addEventListener('DOMContentLoaded', () => {
             hiddenSize,
             numAttentionHeads,
             intermediateSize,
-            numKeyValueHeads
+            numKeyValueHeads,
+            batchSize
         });
     }
 
@@ -117,6 +113,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const intermediateSize = parseInt(intermediateSizeInput.value);
         const numKeyValueHeads = parseInt(numKeyValueHeadsInput.value);
         const unit = mibBtn.classList.contains('active') ? 'MiB' : 'GiB';
+        const batchSize = parseInt(batchSizeInput.value);
 
         try {
             const response = await fetch('/calculate', {
@@ -137,7 +134,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 numAttentionHeads,
                 intermediateSize,
                 numKeyValueHeads,
-                unit
+                unit,
+                batchSize
             })
         });
         if (!response.ok) {
@@ -154,9 +152,8 @@ document.addEventListener('DOMContentLoaded', () => {
         const result = response.result;
         const totalVRAMUsage = response.totalVRAMUsage;
         const unit = mibBtn.classList.contains('active') ? 'MiB' : 'GiB';
-        const divisor = unit === 'MiB' ? 1 : 1024;
 
-        totalVRAMElement.innerHTML = `<strong>Total VRAM usage</strong> is ${(totalVRAMUsage / divisor).toFixed(2)} ${unit}`;
+        totalVRAMElement.innerHTML = `<strong>Total VRAM usage</strong> is ${(totalVRAMUsage).toFixed(2)} ${unit}`;
 
         updateChart(result, unit);
         updateVRAMDetails(result, unit);
@@ -175,15 +172,14 @@ document.addEventListener('DOMContentLoaded', () => {
             vramUsageChart.destroy();
         }
 
-        const divisor = unit === 'MiB' ? 1 : 1024;
         const data = [
-            { name: 'CUDA Kernels', value: result.cudaKernels / divisor },
-            { name: 'Parameters', value: result.parameters / divisor },
-            { name: 'Activations', value: result.activations / divisor },
-            { name: 'Gradients', value: result.gradients / divisor },
-            { name: 'First Moments', value: result.firstMoments / divisor },
-            { name: 'Second Moments', value: result.secondMoments / divisor },
-            { name: 'Outputs', value: result.outputs / divisor }
+            { name: 'CUDA Kernels', value: result.cudaKernels},
+            { name: 'Parameters', value: result.parameters},
+            { name: 'Activations', value: result.activations},
+            { name: 'Gradients', value: result.gradients},
+            { name: 'First Moments', value: result.firstMoments},
+            { name: 'Second Moments', value: result.secondMoments},
+            { name: 'Outputs', value: result.outputs}
         ];
 
         const config: ChartConfiguration = {
@@ -224,16 +220,15 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     
     function updateVRAMDetails(result: any, unit: string) {
-        const divisor = unit === 'MiB' ? 1 : 1024;
         const vramDetails = document.querySelector('.vram-details') as HTMLDivElement;
         vramDetails.innerHTML = `
-        <p><strong>CUDA Kernels</strong> use ${(result.cudaKernels / divisor).toFixed(2)} ${unit} of VRAM</p>
-        <p><strong>Parameters</strong> use ${(result.parameters / divisor).toFixed(2)} ${unit} of VRAM</p>
-        <p><strong>Activations</strong> use ${(result.activations / divisor).toFixed(2)} ${unit} of VRAM</p>
-        <p><strong>Gradients</strong> use ${(result.gradients / divisor).toFixed(2)} ${unit} of VRAM</p>
-        <p><strong>First Moments</strong> use ${(result.firstMoments / divisor).toFixed(2)} ${unit} of VRAM</p>
-        <p><strong>Second Moments</strong> use ${(result.secondMoments / divisor).toFixed(2)} ${unit} of VRAM</p>
-        <p><strong>Output tensor</strong> uses ${(result.outputs / divisor).toFixed(2)} ${unit} of VRAM</p>
+        <p><strong>CUDA Kernels</strong> use ${(result.cudaKernels).toFixed(2)} ${unit} of VRAM</p>
+        <p><strong>Parameters</strong> use ${(result.parameters).toFixed(2)} ${unit} of VRAM</p>
+        <p><strong>Activations</strong> use ${(result.activations).toFixed(2)} ${unit} of VRAM</p>
+        <p><strong>Gradients</strong> use ${(result.gradients).toFixed(2)} ${unit} of VRAM</p>
+        <p><strong>First Moments</strong> use ${(result.firstMoments).toFixed(2)} ${unit} of VRAM</p>
+        <p><strong>Second Moments</strong> use ${(result.secondMoments).toFixed(2)} ${unit} of VRAM</p>
+        <p><strong>Output tensor</strong> uses ${(result.outputs).toFixed(2)} ${unit} of VRAM</p>
         `;
     }
     calculateGPUUsage();

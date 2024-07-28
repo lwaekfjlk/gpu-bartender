@@ -36,7 +36,8 @@ def calculate():
         optimizer_sgd_momentum=data.get('momentum')
     )
     data_args = DataArgs(
-        sequence_length=data['sequenceLength']
+        sequence_length=data['sequenceLength'],
+        batch_size=data['batchSize']
     )
     calculator = VRAMCalculator(
         model_args,
