@@ -52,28 +52,28 @@ document.addEventListener('DOMContentLoaded', () => {
             console.log('Clicked element is not a toggle button');
             return;
         }
-    
+
         const toggleGroup = clickedButton.closest('.toggle-buttons');
         console.log('Toggle group:', toggleGroup);
         if (!toggleGroup) {
             console.log('No parent .toggle-buttons found');
             return;
         }
-    
+
         toggleGroup.querySelectorAll('.toggle-btn').forEach(btn => {
             btn.classList.remove('active');
             console.log('Removed active class from:', btn);
         });
         clickedButton.classList.add('active');
         console.log('Added active class to:', clickedButton);
-    
+
         calculateGPUUsage();
     }
-    
+
     document.querySelectorAll('.toggle-buttons').forEach(container => {
         container.addEventListener('click', handleToggleClick);
     });
-    
+
     momentumCheckbox.addEventListener('change', calculateGPUUsage);
     parametersPresetSelect.addEventListener('change', updateModelParameters);
 
@@ -218,7 +218,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         vramUsageChart = new Chart(ctx, config);
     }
-    
+
     function updateVRAMDetails(result: any, unit: string) {
         const vramDetails = document.querySelector('.vram-details') as HTMLDivElement;
         vramDetails.innerHTML = `

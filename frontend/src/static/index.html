@@ -28,7 +28,9 @@
           <div class="form-group">
             <label>Precision:</label>
             <div class="toggle-buttons">
-              <button class="toggle-btn active" id="mixedPrecision">mixed</button>
+              <button class="toggle-btn active" id="mixedPrecision">
+                mixed
+              </button>
               <button class="toggle-btn" id="fullPrecision">full (fp32)</button>
             </div>
           </div>
@@ -54,14 +56,14 @@
             <input type="number" id="numGPUs" value="4"/>
           </div>
 
-          <!-- <h2>
+            <!-- <h2>
             <img
               src="https://images.pexels.com/photos/3993917/pexels-photo-3993917.jpeg?auto=compress&cs=tinysrgb&h=350"
               alt="GPU Chip"
             />
             GPU Selection
           </h2> -->
-          <!-- <div class="form-group">
+            <!-- <div class="form-group">
             <label for="gpuModel">Select GPU model:</label>
             <select id="gpuModel" required>
               <option value="">Choose a GPU</option>
@@ -72,18 +74,49 @@
             </select>
           </div> -->
 
-          <h2>
-            <img
-              src="https://images.pexels.com/photos/8520081/pexels-photo-8520081.jpeg?auto=compress&cs=tinysrgb&h=350"
-              alt="Training Progress"
-            />
-            Training Details
-          </h2>
-          <div class="form-group">
-            <label for="parametersPreset">Parameters Preset:</label>
-            <select id="parametersPreset">
-              <option value="microsoft/phi-1_5">microsoft/phi-1_5</option>
-            </select>
+            <h2>
+              <img
+                src="https://images.pexels.com/photos/8520081/pexels-photo-8520081.jpeg?auto=compress&cs=tinysrgb&h=350"
+                alt="Training Progress"
+              />
+              Training Details
+            </h2>
+            <div class="form-group">
+              <label for="parametersPreset">Parameters Preset:</label>
+              <select id="parametersPreset">
+                <option value="microsoft/phi-1_5">microsoft/phi-1_5</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="numParameters"
+                >Number of Parameters (billions):</label
+              >
+              <input type="number" id="numParameters" value="" step="0.001" />
+            </div>
+            <div class="form-group">
+              <label for="numLayers">Number of Layers:</label>
+              <input type="number" id="numLayers" value="" />
+            </div>
+            <div class="form-group">
+              <label for="vocabSize">Vocab Size:</label>
+              <input type="number" id="vocabSize" value="" />
+            </div>
+            <div class="form-group">
+              <label for="hiddenSize">Hidden Size:</label>
+              <input type="number" id="hiddenSize" value="" />
+            </div>
+            <div class="form-group">
+              <label for="numAttentionHeads">Number of Attention Heads:</label>
+              <input type="number" id="numAttentionHeads" value="" />
+            </div>
+            <div class="form-group">
+              <label for="intermediateSize">Intermediate Size:</label>
+              <input type="number" id="intermediateSize" value="" />
+            </div>
+            <div class="form-group">
+              <label for="numKeyValueHeads">Number of Key Value Heads:</label>
+              <input type="number" id="numKeyValueHeads" value="" />
+            </div>
           </div>
           <div class="form-group">
             <label for="numParameters">Number of Parameters (billions):</label>
