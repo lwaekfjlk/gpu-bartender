@@ -146,7 +146,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const result = await response.json();
         updateUI(result);
     } catch (error) {
-        totalVRAMElement.textContent = 'Error calculating VRAM';
+        totalVRAMElement.textContent = 'Error calculating VRAM: First moments are only calculated for Adam or SGD optimizer with momentum and Second moments are only calculated for Adam optimizer';
     }}
 
     function updateUI(response: any) {
