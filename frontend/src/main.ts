@@ -32,8 +32,8 @@ document.addEventListener('DOMContentLoaded', () => {
     calculateBtn.addEventListener('click', calculateGPUUsage);
 
     const inputElements = [
-        sequenceLengthInput, numGPUsInput, numParametersInput, numLayersInput, 
-        vocabSizeInput, hiddenSizeInput, numAttentionHeadsInput, intermediateSizeInput, 
+        sequenceLengthInput, numGPUsInput, numParametersInput, numLayersInput,
+        vocabSizeInput, hiddenSizeInput, numAttentionHeadsInput, intermediateSizeInput,
         numKeyValueHeadsInput
     ];
 
@@ -44,9 +44,9 @@ document.addEventListener('DOMContentLoaded', () => {
             console.error(input, 'Input element not found');
         }
     });
-    
-    [sequenceLengthInput, numGPUsInput, numParametersInput, numLayersInput, 
-        vocabSizeInput, hiddenSizeInput, numAttentionHeadsInput, intermediateSizeInput, 
+
+    [sequenceLengthInput, numGPUsInput, numParametersInput, numLayersInput,
+        vocabSizeInput, hiddenSizeInput, numAttentionHeadsInput, intermediateSizeInput,
         numKeyValueHeadsInput].forEach(input => {
            input.addEventListener('change', calculateGPUUsage);
     });
@@ -58,28 +58,28 @@ document.addEventListener('DOMContentLoaded', () => {
             console.log('Clicked element is not a toggle button');
             return;
         }
-    
+
         const toggleGroup = clickedButton.closest('.toggle-buttons');
         console.log('Toggle group:', toggleGroup);
         if (!toggleGroup) {
             console.log('No parent .toggle-buttons found');
             return;
         }
-    
+
         toggleGroup.querySelectorAll('.toggle-btn').forEach(btn => {
             btn.classList.remove('active');
             console.log('Removed active class from:', btn);
         });
         clickedButton.classList.add('active');
         console.log('Added active class to:', clickedButton);
-    
+
         calculateGPUUsage();
     }
-    
+
     document.querySelectorAll('.toggle-buttons').forEach(container => {
         container.addEventListener('click', handleToggleClick);
     });
-    
+
     momentumCheckbox.addEventListener('change', calculateGPUUsage);
     parametersPresetSelect.addEventListener('change', updateModelParameters);
 
@@ -222,7 +222,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         vramUsageChart = new Chart(ctx, config);
     }
-    
+
     function updateVRAMDetails(result: any, unit: string) {
         const divisor = unit === 'MiB' ? 1 : 1024;
         const vramDetails = document.querySelector('.vram-details') as HTMLDivElement;
