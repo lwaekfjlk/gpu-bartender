@@ -23,7 +23,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const intermediateSizeInput = document.getElementById('intermediateSize') as HTMLInputElement;
     const numKeyValueHeadsInput = document.getElementById('numKeyValueHeads') as HTMLInputElement;
     const batchSizeInput = document.getElementById('batchSize') as HTMLInputElement;
-    
+
     // Output elements
     const totalVRAMElement = document.getElementById('totalVRAM') as HTMLParagraphElement;
     const vramChartElement = document.getElementById('vramChart') as HTMLDivElement;
@@ -32,8 +32,8 @@ document.addEventListener('DOMContentLoaded', () => {
     calculateBtn.addEventListener('click', calculateGPUUsage);
 
     const inputElements = [
-        sequenceLengthInput, numGPUsInput, numParametersInput, numLayersInput, 
-        vocabSizeInput, hiddenSizeInput, numAttentionHeadsInput, intermediateSizeInput, 
+        sequenceLengthInput, numGPUsInput, numParametersInput, numLayersInput,
+        vocabSizeInput, hiddenSizeInput, numAttentionHeadsInput, intermediateSizeInput,
         numKeyValueHeadsInput, batchSizeInput
     ];
 
