@@ -26,28 +26,46 @@
             Model Parameters
           </h2>
           <div class="form-group">
-            <label for="modelSize"
-              >Model size (in millions of parameters):</label
-            >
-            <input type="number" id="modelSize" min="1" required />
+            <label>Precision:</label>
+            <div class="toggle-buttons">
+              <button class="toggle-btn active" id="mixedPrecision">
+                mixed
+              </button>
+              <button class="toggle-btn" id="fullPrecision">full (fp32)</button>
+            </div>
           </div>
           <div class="form-group">
-            <label for="batchSize">Batch size:</label>
-            <input type="number" id="batchSize" min="1" required />
-          </div>
-          <div class="form-group">
-            <label for="epochs">Number of epochs:</label>
-            <input type="number" id="epochs" min="1" required />
-          </div>
+            <label>Optimizer:</label>
+            <div class="toggle-buttons">
+              <button class="toggle-btn active" id="adamOptimizer">Adam</button>
+              <button class="toggle-btn" id="sgdOptimizer">SGD</button>
+            </div>
+            <div class="checkbox-container">
+              <label for="momentum"
+                >Momentum <input type="checkbox" id="momentum" checked
+              /></label>
+            </div>
+            <div class="form-group">
+              <label for="numGPUs">Sequence Length:</label>
+              <input type="number" id="sequenceLength" value="128" />
+            </div>
+            <div class="form-group">
+              <label for="batchSize">Batch size:</label>
+              <input type="number" id="batchSize" min="1" value="32" required />
+            </div>
+            <div class="form-group">
+              <label for="numGPUs">Number of GPUs:</label>
+              <input type="number" id="numGPUs" value="4" />
+            </div>
 
-          <h2>
+            <!-- <h2>
             <img
               src="https://images.pexels.com/photos/3993917/pexels-photo-3993917.jpeg?auto=compress&cs=tinysrgb&h=350"
               alt="GPU Chip"
             />
             GPU Selection
-          </h2>
-          <div class="form-group">
+          </h2> -->
+            <!-- <div class="form-group">
             <label for="gpuModel">Select GPU model:</label>
             <select id="gpuModel" required>
               <option value="">Choose a GPU</option>
@@ -56,67 +74,72 @@
               <option value="v100">NVIDIA Tesla V100</option>
               <option value="a100">NVIDIA A100</option>
             </select>
-          </div>
+          </div> -->
 
-          <h2>
-            <img
-              src="https://images.pexels.com/photos/8520081/pexels-photo-8520081.jpeg?auto=compress&cs=tinysrgb&h=350"
-              alt="Training Progress"
-            />
-            Training Details
-          </h2>
-          <div class="form-group">
-            <label for="learningRate">Learning rate:</label>
-            <input
-              type="number"
-              id="learningRate"
-              step="0.001"
-              min="0"
-              max="1"
-              required
-            />
-          </div>
-          <div class="form-group">
-            <label for="optimizer">Optimizer:</label>
-            <select id="optimizer" required>
-              <option value="">Choose an optimizer</option>
-              <option value="adam">Adam</option>
-              <option value="sgd">SGD</option>
-              <option value="rmsprop">RMSprop</option>
-            </select>
-          </div>
-          <div class="form-group">
-            <label for="dataSize">Data size (in GB):</label>
-            <input type="number" id="dataSize" min="1" required />
+            <h2>
+              <img
+                src="https://images.pexels.com/photos/8520081/pexels-photo-8520081.jpeg?auto=compress&cs=tinysrgb&h=350"
+                alt="Training Progress"
+              />
+              Training Details
+            </h2>
+            <div class="form-group">
+              <label for="parametersPreset">Parameters Preset:</label>
+              <select id="parametersPreset">
+                <option value="microsoft/phi-1_5">microsoft/phi-1_5</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="numParameters"
+                >Number of Parameters (billions):</label
+              >
+              <input
+                type="number"
+                id="numParameters"
+                value="123456789"
+                step="0.001"
+              />
+            </div>
+            <div class="form-group">
+              <label for="numLayers">Number of Layers:</label>
+              <input type="number" id="numLayers" value="12" />
+            </div>
+            <div class="form-group">
+              <label for="vocabSize">Vocab Size:</label>
+              <input type="number" id="vocabSize" value="30522" />
+            </div>
+            <div class="form-group">
+              <label for="hiddenSize">Hidden Size:</label>
+              <input type="number" id="hiddenSize" value="768" />
+            </div>
+            <div class="form-group">
+              <label for="numAttentionHeads">Number of Attention Heads:</label>
+              <input type="number" id="numAttentionHeads" value="12" />
+            </div>
+            <div class="form-group">
+              <label for="intermediateSize">Intermediate Size:</label>
+              <input type="number" id="intermediateSize" value="3072" />
+            </div>
+            <div class="form-group">
+              <label for="numKeyValueHeads">Number of Key Value Heads:</label>
+              <input type="number" id="numKeyValueHeads" value="12" />
+            </div>
           </div>
 
           <button id="calculateBtn">Calculate GPU Usage</button>
         </div>
 
-        <div class="results">
-          <h2>Estimated GPU Usage</h2>
-          <canvas id="gpuUsageChart"></canvas>
-          <div class="key-metrics">
-            <div class="metric">
-              <h3>Estimated Training Time</h3>
-              <p id="trainingTime">-</p>
-            </div>
-            <div class="metric">
-              <h3>Memory Utilization</h3>
-              <p id="memoryUtilization">-</p>
-            </div>
-            <div class="metric">
-              <h3>Power Consumption</h3>
-              <p id="powerConsumption">-</p>
-            </div>
+        <div class="results-section">
+          <h2>Estimation Result</h2>
+          <div class="toggle-buttons">
+            <button class="toggle-btn active" id="mibBtn">MiB</button>
+            <button class="toggle-btn" id="gibBtn">GiB</button>
           </div>
-          <a href="#" class="download-btn" id="downloadResults">
-            <img
-              src="https://images.pexels.com/photos/19237086/pexels-photo-19237086.jpeg?auto=compress&cs=tinysrgb&h=350"
-              alt="Download"
-            />
-            Download Results
-          </a>
+          <div id="vramChart">
+            <canvas id="vramChartCanvas"></canvas>
+          </div>
+          <p id="totalVRAM"></p>
+          <div class="vram-details"></div>
         </div>
       </div>
     </div>

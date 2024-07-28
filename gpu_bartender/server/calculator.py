@@ -166,7 +166,7 @@ class VRAMCalculator:
             'activations': self.calculate_activations(),
             'gradients': self.calculate_gradients(),
             'firstMoments': self.calculate_first_moments(),
-            'secondMoments': self.calculate_second_moments(),
+            'secondMoments': self.calculate_second_moments()
         }
 
         return result_estimation

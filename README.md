@@ -11,10 +11,10 @@ Estimate the GPU VRAM usage in modern LLM training.
     git clone git@github.com:lwaekfjlk/gpu-bartender.git
     ```
 
-2. Navigate to the frontend directory:
+2. Navigate to the root directory:
 
     ```bash
-    cd frontend
+    cd gpu-bartender
     ```
 
 3. Install dependencies:

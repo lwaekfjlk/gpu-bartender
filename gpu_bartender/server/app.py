@@ -14,7 +14,7 @@ def calculate():
     data = request.json
 
     model_args = ModelArgs(
-        num_params=data['modelSize'] * 1000000,
+        num_params=data['numParams'],
         vocab_size=data['vocabSize'],
         hidden_size=data['hiddenSize'],
         num_attention_heads=data['numAttentionHeads'],
@@ -23,34 +23,39 @@ def calculate():
         num_layers=data['numLayers']
     )
     finetuning_args = FinetuningArgs(
-        training_precision=data['trainingPrecision'],
-        is_fsdp=data['isFsdp'],
-        lora_alpha=data.get('loraAlpha'),
-        lora_dropout=data.get('loraDropout'),
-        lora_rank=data.get('loraRank'),
-        lora_target=data.get('loraTarget'),
-        qlora_alpha=data.get('qloraAlpha'),
-        qlora_dropout=data.get('qloraDropout')
+        training_precision=data['precision'],
+        # is_fsdp=data['isFsdp'],
+        # lora_alpha=data.get('loraAlpha'),
+        # lora_dropout=data.get('loraDropout'),
+        # lora_rank=data.get('loraRank'),
+        # lora_target=data.get('loraTarget'),
+        # qlora_alpha=data.get('qloraAlpha'),
+        # qlora_dropout=data.get('qloraDropout')
     )
     optimizer_args = OptimizerArgs(
         optimizer=data['optimizer'],
-        optimizer_sgd_momentum=data.get('optimizerSgdMomentum')
+        optimizer_sgd_momentum=data.get('momentum')
     )
     data_args = DataArgs(
-        batch_size=data['batchSize'],
-        sequence_length=data['sequenceLength']
+        sequence_length=data['sequenceLength'],
+        batch_size=data['batchSize']
     )
     calculator = VRAMCalculator(
         model_args,
         finetuning_args,
         optimizer_args,
         data_args,
-        num_gpus=data['numGpus'],
+        num_gpus=data['numGPUs'],
         unit=data['unit']
     )
 
     result = calculator.estimate_result()
-    return jsonify(result)
+    total_vram_usage = calculator.get_total_usage_per_gpu(result, is_first=True)
+    response = {
+        'result': result,
+        'totalVRAMUsage': total_vram_usage
+    }
+    return jsonify(response)
 
 @app.route('/', defaults={'path': ''})
 @app.route('/<path:path>')

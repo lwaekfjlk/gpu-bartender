@@ -1,24 +1,119 @@
 import Chart from 'chart.js/auto';
 import { ChartConfiguration } from 'chart.js';
 document.addEventListener('DOMContentLoaded', () => {
+    const mixedPrecisionBtn = document.getElementById('mixedPrecision') as HTMLButtonElement;
+    const fullPrecisionBtn = document.getElementById('fullPrecision') as HTMLButtonElement;
+    const adamOptimizerBtn = document.getElementById('adamOptimizer') as HTMLButtonElement;
+    const sgdOptimizerBtn = document.getElementById('sgdOptimizer') as HTMLButtonElement;
+    const mibBtn = document.getElementById('mibBtn') as HTMLButtonElement;
+    const gibBtn = document.getElementById('gibBtn') as HTMLButtonElement;
     const calculateBtn = document.getElementById('calculateBtn') as HTMLButtonElement;
-    const trainingTime = document.getElementById('trainingTime') as HTMLParagraphElement;
-    const memoryUtilization = document.getElementById('memoryUtilization') as HTMLParagraphElement;
-    const powerConsumption = document.getElementById('powerConsumption') as HTMLParagraphElement;
-    const downloadResults = document.getElementById('downloadResults') as HTMLAnchorElement;
-    let gpuUsageChart: Chart | undefined;
 
+
+    //User input elements
+    const momentumCheckbox = document.getElementById('momentum') as HTMLInputElement;
+    const sequenceLengthInput = document.getElementById('sequenceLength') as HTMLInputElement;
+    const numGPUsInput = document.getElementById('numGPUs') as HTMLInputElement;
+    const parametersPresetSelect = document.getElementById('parametersPreset') as HTMLSelectElement;
+    const numParametersInput = document.getElementById('numParameters') as HTMLInputElement;
+    const numLayersInput = document.getElementById('numLayers') as HTMLInputElement;
+    const vocabSizeInput = document.getElementById('vocabSize') as HTMLInputElement;
+    const hiddenSizeInput = document.getElementById('hiddenSize') as HTMLInputElement;
+    const numAttentionHeadsInput = document.getElementById('numAttentionHeads') as HTMLInputElement;
+    const intermediateSizeInput = document.getElementById('intermediateSize') as HTMLInputElement;
+    const numKeyValueHeadsInput = document.getElementById('numKeyValueHeads') as HTMLInputElement;
+    const batchSizeInput = document.getElementById('batchSize') as HTMLInputElement;
+
+    // Output elements
+    const totalVRAMElement = document.getElementById('totalVRAM') as HTMLParagraphElement;
+    const vramChartElement = document.getElementById('vramChart') as HTMLDivElement;
+
+    let vramUsageChart: Chart | undefined;
     calculateBtn.addEventListener('click', calculateGPUUsage);
-    downloadResults.addEventListener('click', downloadResultsFile);
+
+    const inputElements = [
+        sequenceLengthInput, numGPUsInput, numParametersInput, numLayersInput,
+        vocabSizeInput, hiddenSizeInput, numAttentionHeadsInput, intermediateSizeInput,
+        numKeyValueHeadsInput, batchSizeInput
+    ];
+
+    inputElements.forEach(input => {
+        if (input) {
+            input.addEventListener('change', calculateGPUUsage);
+        } else {
+            console.error(input, 'Input element not found');
+        }
+    });
+
+    function handleToggleClick(event: Event) {
+        const clickedButton = event.target as HTMLButtonElement;
+        console.log('Clicked button:', clickedButton);
+        if (!clickedButton.classList.contains('toggle-btn')) {
+            console.log('Clicked element is not a toggle button');
+            return;
+        }
+
+        const toggleGroup = clickedButton.closest('.toggle-buttons');
+        console.log('Toggle group:', toggleGroup);
+        if (!toggleGroup) {
+            console.log('No parent .toggle-buttons found');
+            return;
+        }
+
+        toggleGroup.querySelectorAll('.toggle-btn').forEach(btn => {
+            btn.classList.remove('active');
+            console.log('Removed active class from:', btn);
+        });
+        clickedButton.classList.add('active');
+        console.log('Added active class to:', clickedButton);
+
+        calculateGPUUsage();
+    }
+
+    document.querySelectorAll('.toggle-buttons').forEach(container => {
+        container.addEventListener('click', handleToggleClick);
+    });
+
+    momentumCheckbox.addEventListener('change', calculateGPUUsage);
+    parametersPresetSelect.addEventListener('change', updateModelParameters);
+
+    function updateModelParameters() {
+        const numParameters = numParametersInput.value;
+        const numLayers = numLayersInput.value;
+        const vocabSize = vocabSizeInput.value;
+        const hiddenSize = hiddenSizeInput.value;
+        const numAttentionHeads = numAttentionHeadsInput.value;
+        const intermediateSize = intermediateSizeInput.value;
+        const numKeyValueHeads = numKeyValueHeadsInput.value;
+        const batchSize = batchSizeInput.value;
+
+        console.log('Current model parameters:', {
+            numParameters,
+            numLayers,
+            vocabSize,
+            hiddenSize,
+            numAttentionHeads,
+            intermediateSize,
+            numKeyValueHeads,
+            batchSize
+        });
+    }
 
     async function calculateGPUUsage() {
-        const modelSize = parseFloat((document.getElementById('modelSize') as HTMLInputElement).value);
-        const batchSize = parseInt((document.getElementById('batchSize') as HTMLInputElement).value);
-        const epochs = parseInt((document.getElementById('epochs') as HTMLInputElement).value);
-        const gpuModel = (document.getElementById('gpuModel') as HTMLSelectElement).value;
-        const learningRate = parseFloat((document.getElementById('learningRate') as HTMLInputElement).value);
-        const optimizer = (document.getElementById('optimizer') as HTMLSelectElement).value;
-        const dataSize = parseFloat((document.getElementById('dataSize') as HTMLInputElement).value);
+        const precision = document.querySelector('#mixedPrecision.active') ? 'mixed' : 'full';
+        const optimizer = document.querySelector('#adamOptimizer.active') ? 'Adam' : 'SGD';
+        const momentum = (document.getElementById('momentum') as HTMLInputElement).checked;
+        const sequenceLength = parseInt(sequenceLengthInput.value);
+        const numGPUs = parseInt(numGPUsInput.value);
+        const numParams = parseFloat(numParametersInput.value);
+        const numLayers = parseInt(numLayersInput.value);
+        const vocabSize = parseInt(vocabSizeInput.value);
+        const hiddenSize = parseInt(hiddenSizeInput.value);
+        const numAttentionHeads = parseInt(numAttentionHeadsInput.value);
+        const intermediateSize = parseInt(intermediateSizeInput.value);
+        const numKeyValueHeads = parseInt(numKeyValueHeadsInput.value);
+        const unit = mibBtn.classList.contains('active') ? 'MiB' : 'GiB';
+        const batchSize = parseInt(batchSizeInput.value);
 
         try {
             const response = await fetch('/calculate', {
@@ -27,78 +122,70 @@ document.addEventListener('DOMContentLoaded', () => {
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-                modelSize,
-                batchSize,
-                epochs,
-                gpuModel,
-                learningRate,
+                precision,
                 optimizer,
-                dataSize,
-                numGpus: 1,
-                unit: "MiB",
-                vocabSize: 30522,
-                hiddenSize: 768,
-                numAttentionHeads: 12,
-                numKeyValueHeads: 12,
-                intermediateSize: 3072,
-                numLayers: 12,
-                trainingPrecision: 'mixed',
-                isFsdp: true,
-                optimizerSgdMomentum: null,
-                sequenceLength: 512
+                momentum,
+                sequenceLength,
+                numGPUs,
+                numParams,
+                numLayers,
+                vocabSize,
+                hiddenSize,
+                numAttentionHeads,
+                intermediateSize,
+                numKeyValueHeads,
+                unit,
+                batchSize
             })
         });
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
         }
         const result = await response.json();
-        console.log('Backend response:', result);
-        const estimatedTime = (modelSize * batchSize * epochs) / 1000;
-        const estimatedMemory = (modelSize * 4 + dataSize * 1024) / 1024;
-        const estimatedPower = modelSize * 0.5;
-        const combinedResult = {
-            ...result,
-            estimatedTime,
-            estimatedMemory,
-            estimatedPower
-        };
-        updateUI(combinedResult);
+        updateUI(result);
     } catch (error) {
-        console.error('Error fetching data:', error);
-        trainingTime.textContent = 'Error fetching data';
-        memoryUtilization.textContent = 'Error fetching data';
-
-        powerConsumption.textContent = 'Error fetching data';
+        totalVRAMElement.textContent = 'Error calculating VRAM: First moments are only calculated for Adam or SGD optimizer with momentum and Second moments are only calculated for Adam optimizer';
     }}
 
-    function updateUI(result: any) {
-        console.log('Updating UI with:', result);
-        if (trainingTime) trainingTime.textContent = `${result.estimatedTime.toFixed(2)} hours`;
-        if (memoryUtilization) memoryUtilization.textContent = `${result.estimatedMemory.toFixed(2)} GB`;
-        if (powerConsumption) powerConsumption.textContent = `${result.estimatedPower.toFixed(2)} W`;
+    function updateUI(response: any) {
+        console.log('Updating UI with:', response);
+        const result = response.result;
+        const totalVRAMUsage = response.totalVRAMUsage;
+        const unit = mibBtn.classList.contains('active') ? 'MiB' : 'GiB';
 
-        updateChart(result.estimatedTime || 0);
+        totalVRAMElement.innerHTML = `<strong>Total VRAM usage</strong> is ${(totalVRAMUsage).toFixed(2)} ${unit}`;
+
+        updateChart(result, unit);
+        updateVRAMDetails(result, unit);
     }
 
-    function updateChart(estimatedTime: number) {
-        const canvas = document.getElementById('gpuUsageChart') as HTMLCanvasElement;
-        const ctx = canvas.getContext('2d');
+    function updateChart(result: any, unit: string) {
+        const vramChartCanvas = document.getElementById('vramChartCanvas') as HTMLCanvasElement;
+        const ctx = vramChartCanvas.getContext('2d');
 
         if (!ctx) {
             console.error('Failed to get 2D context');
             return;
         }
-        if (gpuUsageChart) {
-            gpuUsageChart.destroy();
+
+        if (vramUsageChart) {
+            vramUsageChart.destroy();
         }
 
-        const labels = Array.from({ length: 10 }, (_, i) => i * estimatedTime / 10);
-        const data = labels.map(x => Math.sin(x) * 50 + 50);
+        const data = [
+            { name: 'CUDA Kernels', value: result.cudaKernels},
+            { name: 'Parameters', value: result.parameters},
+            { name: 'Activations', value: result.activations},
+            { name: 'Gradients', value: result.gradients},
+            { name: 'First Moments', value: result.firstMoments},
+            { name: 'Second Moments', value: result.secondMoments},
+            { name: 'Outputs', value: result.outputs}
+        ];
 
         const config: ChartConfiguration = {
             type: 'line',
             data: {
-                labels: labels,
+                labels: data.map(item => item.name),
                 datasets: [{
                     label: 'GPU Usage (%)',
                     data: data,
@@ -129,24 +216,20 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         };
 
-        gpuUsageChart = new Chart(ctx, config);
+        vramUsageChart = new Chart(ctx, config);
     }
 
-    function downloadResultsFile(e: Event) {
-        e.preventDefault();
-        const results = `
-            Estimated Training Time: ${trainingTime.textContent}
-            Memory Utilization: ${memoryUtilization.textContent}
-            Power Consumption: ${powerConsumption.textContent}
+    function updateVRAMDetails(result: any, unit: string) {
+        const vramDetails = document.querySelector('.vram-details') as HTMLDivElement;
+        vramDetails.innerHTML = `
+        <p><strong>CUDA Kernels</strong> use ${(result.cudaKernels).toFixed(2)} ${unit} of VRAM</p>
+        <p><strong>Parameters</strong> use ${(result.parameters).toFixed(2)} ${unit} of VRAM</p>
+        <p><strong>Activations</strong> use ${(result.activations).toFixed(2)} ${unit} of VRAM</p>
+        <p><strong>Gradients</strong> use ${(result.gradients).toFixed(2)} ${unit} of VRAM</p>
+        <p><strong>First Moments</strong> use ${(result.firstMoments).toFixed(2)} ${unit} of VRAM</p>
+        <p><strong>Second Moments</strong> use ${(result.secondMoments).toFixed(2)} ${unit} of VRAM</p>
+        <p><strong>Output tensor</strong> uses ${(result.outputs).toFixed(2)} ${unit} of VRAM</p>
         `;
-        const blob = new Blob([results], { type: 'text/plain' });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = 'gpu_usage_results.txt';
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        URL.revokeObjectURL(url);
     }
+    calculateGPUUsage();
 });
