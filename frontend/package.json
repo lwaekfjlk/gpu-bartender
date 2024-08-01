@@ -3,8 +3,13 @@
     "version": "1.0.0",
     "main": "src/main.ts",
     "scripts": {
-        "build": "webpack --mode production",
-        "start": "ts-node main.ts"
+        "build": "webpack --config webpack.config.js --mode production",
+        "start:frontend": "webpack serve --config webpack.config.js --mode development",
+        "start:backend": "cd ../gpu_bartender && python server/app.py",
+        "start": "npm run build && npm run start:backend",
+        "type-check": "tsc --noEmit",
+        "lint": "eslint 'src/**/*.{js,ts}'",
+        "test": "jest"
     },
     "keywords": [],
     "author": "",
@@ -21,9 +26,11 @@
         "mini-css-extract-plugin": "^2.9.0",
         "style-loader": "^4.0.0",
         "ts-loader": "^9.5.1",
+        "ts-node": "^10.9.2",
         "typescript": "^4.9.5",
         "webpack": "^5.93.0",
-        "webpack-cli": "^5.1.4"
+        "webpack-cli": "^5.1.4",
+        "webpack-dev-server": "^4.0.0"
     },
     "description": ""
 }
