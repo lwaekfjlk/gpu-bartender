@@ -1,5 +1,7 @@
 import Chart from 'chart.js/auto';
 import { ChartConfiguration } from 'chart.js';
+import './styles/styles.css';
+
 document.addEventListener('DOMContentLoaded', () => {
     const mixedPrecisionBtn = document.getElementById('mixedPrecision') as HTMLButtonElement;
     const fullPrecisionBtn = document.getElementById('fullPrecision') as HTMLButtonElement;
