@@ -14,7 +14,7 @@ Estimate the GPU VRAM usage in modern LLM training.
 2. Navigate to the root directory:
 
     ```bash
-    cd gpu-bartender
+    cd frontend
     ```
 
 3. Install dependencies:
@@ -32,6 +32,7 @@ Estimate the GPU VRAM usage in modern LLM training.
 5. Start the application:
 
     ```bash
+    cd gpu-bartender
     npm start
     ```
 
