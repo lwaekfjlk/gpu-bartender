@@ -1,4 +1,4 @@
-name: Lint and Test
+name: frontend lint and test
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -39,7 +39,7 @@ jobs:
         run: npm install --frozen-lockfile
 
       - name: Lint code
-        run: npm run lint
+        run: npx eslint 'frontend/src/**/*.{js,ts}'
 
       - name: Run unit tests
         run: npm test
@@ -62,6 +62,4 @@ jobs:
         uses: 8398a7/action-slack@v3
         with:
           status: ${{ job.status }}
-          fields: repo,message,commit,author,action,eventName,ref,workflow,job,took
-        env:
-          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+          fields: repo,message,commit,author,action,eventName,ref,workflow,job
