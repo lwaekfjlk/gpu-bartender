@@ -170,7 +170,7 @@ document.addEventListener('DOMContentLoaded', () => {
             console.error('Failed to get 2D context');
             return;
         }
-    
+
         if (vramUsageChart) {
             vramUsageChart.destroy();
         }
@@ -184,15 +184,15 @@ document.addEventListener('DOMContentLoaded', () => {
             { name: 'Second Moments', key: 'secondMoments' },
             { name: 'Outputs', key: 'outputs' }
         ];
-        
+
         const totalVRAM = components.reduce((sum, item) => sum + result[item.key], 0);
-    
+
         const datasets = components.map(item => ({
             label: item.name,
             data: Array(numGPUs).fill((result[item.key] / totalVRAM) * 100),
             backgroundColor: getColor(item.name),
         }));
-    
+
         const config: ChartConfiguration<'bar'> = {
             type: 'bar',
             data: {
@@ -242,7 +242,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             },
         };
-    
+
         vramUsageChart = new Chart(ctx, config);
     }
 
