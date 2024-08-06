@@ -1,5 +1,5 @@
 import Chart from 'chart.js/auto';
-import { ChartConfiguration } from 'chart.js';
+import { ChartConfiguration, ChartTypeRegistry, TooltipItem} from 'chart.js';
 import './styles/styles.css';
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -154,83 +154,122 @@ document.addEventListener('DOMContentLoaded', () => {
         const result = response.result;
         const totalVRAMUsage = response.totalVRAMUsage;
         const unit = mibBtn.classList.contains('active') ? 'MiB' : 'GiB';
-
-        totalVRAMElement.innerHTML = `<strong>Total VRAM usage</strong> is ${(totalVRAMUsage).toFixed(2)} ${unit}`;
-
+        const pluginTextElement = document.getElementById('pluginText') as HTMLDivElement;
+        pluginTextElement.innerHTML = `
+            <p>Due to some data being too large or too small, they may be hidden in the chart. Click the corresponding legend to show/hide parts of the data.</p>
+        `;
         updateChart(result, unit);
-        updateVRAMDetails(result, unit);
+        updateVRAMDetails(result, totalVRAMUsage, unit);
     }
 
     function updateChart(result: any, unit: string) {
         const vramChartCanvas = document.getElementById('vramChartCanvas') as HTMLCanvasElement;
         const ctx = vramChartCanvas.getContext('2d');
-
+        vramChartCanvas.style.width = '120%';
         if (!ctx) {
             console.error('Failed to get 2D context');
             return;
         }
-
+    
         if (vramUsageChart) {
             vramUsageChart.destroy();
         }
-
-        const data = [
-            { name: 'CUDA Kernels', value: result.cudaKernels},
-            { name: 'Parameters', value: result.parameters},
-            { name: 'Activations', value: result.activations},
-            { name: 'Gradients', value: result.gradients},
-            { name: 'First Moments', value: result.firstMoments},
-            { name: 'Second Moments', value: result.secondMoments},
-            { name: 'Outputs', value: result.outputs}
+        const numGPUs = parseInt(numGPUsInput.value);
+        const components = [
+            { name: 'CUDA Kernels', key: 'cudaKernels' },
+            { name: 'Parameters', key: 'parameters' },
+            { name: 'Activations', key: 'activations' },
+            { name: 'Gradients', key: 'gradients' },
+            { name: 'First Moments', key: 'firstMoments' },
+            { name: 'Second Moments', key: 'secondMoments' },
+            { name: 'Outputs', key: 'outputs' }
         ];
-
-        const config: ChartConfiguration = {
-            type: 'line',
+        
+        const totalVRAM = components.reduce((sum, item) => sum + result[item.key], 0);
+    
+        const datasets = components.map(item => ({
+            label: item.name,
+            data: Array(numGPUs).fill((result[item.key] / totalVRAM) * 100),
+            backgroundColor: getColor(item.name),
+        }));
+    
+        const config: ChartConfiguration<'bar'> = {
+            type: 'bar',
             data: {
-                labels: data.map(item => item.name),
-                datasets: [{
-                    label: 'GPU Usage (%)',
-                    data: data,
-                    borderColor: 'rgb(75, 192, 192)',
-                    tension: 0.1
-                }as any]
+                labels: Array.from({length: numGPUs}, (_, i) => `GPU ${i}`),
+                datasets: datasets
             },
             options: {
+                indexAxis: 'y',
                 responsive: true,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                    },
+                    title: {
+                        display: true,
+                        text: `GPU Usage %`
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context: TooltipItem<'bar'>) {
+                                const value = context.raw as number;
+                                return `${context.dataset.label}: ${value.toFixed(2)}%`;
+                            }
+                        }
+                    }
+                },
                 scales: {
                     x: {
-                        type: 'linear',
+                        stacked: true,
                         title: {
                             display: true,
-                            text: 'Time (hours)'
-                        }
+                            text: `VRAM Usage %`
+                        },
+                        ticks: {
+                            callback: function(value) {
+                                return `${Number(value)}%`;
+                            }
+                        },
                     },
                     y: {
-                        type: 'linear',
+                        stacked: true,
                         title: {
                             display: true,
-                            text: 'GPU Usage (%)'
-                        },
-                        min: 0,
-                        max: 100
+                            text: 'GPU Index'
+                        }
                     }
-                } as any
-            }
+                }
+            },
         };
-
+    
         vramUsageChart = new Chart(ctx, config);
     }
 
-    function updateVRAMDetails(result: any, unit: string) {
+    function getColor(name: string): string {
+        const colorMap: {[key: string]: string} = {
+            'CUDA Kernels': 'rgba(153, 102, 255, 0.8)',
+            'Parameters': 'rgba(75, 192, 192, 0.8)',
+            'Activations': 'rgba(255, 159, 64, 0.8)',
+            'Gradients': 'rgba(255, 99, 132, 0.8)',
+            'First Moments': 'rgba(54, 162, 235, 0.8)',
+            'Second Moments': 'rgba(255, 206, 86, 0.8)',
+            'Outputs': 'rgba(201, 203, 207, 0.8)'
+        };
+        return colorMap[name] || 'rgba(0, 0, 0, 0.8)';
+    }
+
+    function updateVRAMDetails(result: any, totalVRAMUsage: number, unit: string) {
         const vramDetails = document.querySelector('.vram-details') as HTMLDivElement;
         vramDetails.innerHTML = `
-        <p><strong>CUDA Kernels</strong> use ${(result.cudaKernels).toFixed(2)} ${unit} of VRAM</p>
-        <p><strong>Parameters</strong> use ${(result.parameters).toFixed(2)} ${unit} of VRAM</p>
-        <p><strong>Activations</strong> use ${(result.activations).toFixed(2)} ${unit} of VRAM</p>
-        <p><strong>Gradients</strong> use ${(result.gradients).toFixed(2)} ${unit} of VRAM</p>
-        <p><strong>First Moments</strong> use ${(result.firstMoments).toFixed(2)} ${unit} of VRAM</p>
-        <p><strong>Second Moments</strong> use ${(result.secondMoments).toFixed(2)} ${unit} of VRAM</p>
-        <p><strong>Output tensor</strong> uses ${(result.outputs).toFixed(2)} ${unit} of VRAM</p>
+        <p><strong>Total VRAM usage</strong> is ${totalVRAMUsage.toLocaleString(undefined, {maximumFractionDigits: 2})} ${unit}</p>
+        <p><strong>CUDA Kernels</strong> use ${result.cudaKernels.toLocaleString(undefined, {maximumFractionDigits: 2})} ${unit} of VRAM</p>
+        <p><strong>Parameters</strong> use ${result.parameters.toLocaleString(undefined, {maximumFractionDigits: 2})} ${unit} of VRAM</p>
+        <p><strong>Activations</strong> use ${result.activations.toLocaleString(undefined, {maximumFractionDigits: 2})} ${unit} of VRAM</p>
+        <p><strong>Gradients</strong> use ${result.gradients.toLocaleString(undefined, {maximumFractionDigits: 2})} ${unit} of VRAM</p>
+        <p><strong>First Moments</strong> use ${result.firstMoments.toLocaleString(undefined, {maximumFractionDigits: 2})} ${unit} of VRAM</p>
+        <p><strong>Second Moments</strong> use ${result.secondMoments.toLocaleString(undefined, {maximumFractionDigits: 2})} ${unit} of VRAM</p>
+        <p><strong>Output tensor</strong> uses ${result.outputs.toLocaleString(undefined, {maximumFractionDigits: 2})} ${unit} of VRAM</p>
         `;
     }
     calculateGPUUsage();

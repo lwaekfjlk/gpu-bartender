@@ -215,3 +215,15 @@ footer {
         grid-template-columns: 1fr;
     }
 }
+
+.vram-details {
+    margin-top: 10px;
+}
+
+.plugin-text {
+    text-align: left;
+    margin-top: 5px;
+    font-size: 14px;
+    color: grey;
+    font-style: italic;
+}
