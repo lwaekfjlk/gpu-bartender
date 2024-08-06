@@ -156,7 +156,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const unit = mibBtn.classList.contains('active') ? 'MiB' : 'GiB';
         const pluginTextElement = document.getElementById('pluginText') as HTMLDivElement;
         pluginTextElement.innerHTML = `
-            <p>Due to some data being too large or too small, they may be hidden in the chart. Click the corresponding legend to show/hide parts of the data.</p>
+            <p>Due to some data being too large or too small, they may be hidden in the chart. Users can toggle the visibility of specific data segments by interacting with the corresponding legend elements.</p>
         `;
         updateChart(result, unit);
         updateVRAMDetails(result, totalVRAMUsage, unit);
