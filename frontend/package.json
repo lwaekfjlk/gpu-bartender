@@ -9,7 +9,8 @@
         "start": "npm run build && npm run start:backend",
         "type-check": "tsc --noEmit",
         "lint": "eslint 'src/**/*.{js,ts}'",
-        "test": "jest"
+        "test": "jest",
+        "dev": "concurrently \"npm run start:frontend\" \"npm run start:backend\""
     },
     "keywords": [],
     "author": "",
@@ -22,6 +23,7 @@
     },
     "devDependencies": {
         "@types/chart.js": "^2.9.41",
+        "concurrently": "^8.2.2",
         "css-loader": "^7.1.2",
         "mini-css-extract-plugin": "^2.9.0",
         "style-loader": "^4.0.0",
