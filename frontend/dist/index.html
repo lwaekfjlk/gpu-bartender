@@ -10,11 +10,6 @@
   <body>
     <div class="container">
       <h1>GPU Usage Calculator for AI Model Training</h1>
-      <img
-        src="https://images.pexels.com/photos/17483874/pexels-photo-17483874.png?auto=compress&cs=tinysrgb&h=350"
-        alt="AI Neural Network"
-        class="hero-image"
-      />
 
       <div class="calculator">
         <div class="input-section">
@@ -46,7 +41,7 @@
               /></label>
             </div>
             <div class="form-group">
-              <label for="numGPUs">Sequence Length:</label>
+              <label for="sequenceLength">Sequence Length:</label>
               <input type="number" id="sequenceLength" value="128" />
             </div>
             <div class="form-group">
@@ -55,7 +50,7 @@
             </div>
             <div class="form-group">
               <label for="numGPUs">Number of GPUs:</label>
-              <input type="number" id="numGPUs" value="4" />
+              <input type="number" id="numGPUs" value="4" min="1" max="8"/>
             </div>
 
             <!-- <h2>

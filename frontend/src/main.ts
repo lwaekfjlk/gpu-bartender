@@ -16,6 +16,15 @@ document.addEventListener('DOMContentLoaded', () => {
     const momentumCheckbox = document.getElementById('momentum') as HTMLInputElement;
     const sequenceLengthInput = document.getElementById('sequenceLength') as HTMLInputElement;
     const numGPUsInput = document.getElementById('numGPUs') as HTMLInputElement;
+    numGPUsInput.addEventListener('change', validateNumGPUs);
+    numGPUsInput.addEventListener('blur', validateNumGPUs);
+    function validateNumGPUs() {
+        const value = parseInt(numGPUsInput.value);
+        if (value < 1 || value > 8) {
+            alert('The number of GPUs is valid between 1 to 8 (inclusive)');
+        }
+        numGPUsInput.value = '4';
+    }
     const parametersPresetSelect = document.getElementById('parametersPreset') as HTMLSelectElement;
     const numParametersInput = document.getElementById('numParameters') as HTMLInputElement;
     const numLayersInput = document.getElementById('numLayers') as HTMLInputElement;
@@ -107,6 +116,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const momentum = (document.getElementById('momentum') as HTMLInputElement).checked;
         const sequenceLength = parseInt(sequenceLengthInput.value);
         const numGPUs = parseInt(numGPUsInput.value);
+        validateNumGPUs();
         const numParams = parseFloat(numParametersInput.value);
         const numLayers = parseInt(numLayersInput.value);
         const vocabSize = parseInt(vocabSizeInput.value);
