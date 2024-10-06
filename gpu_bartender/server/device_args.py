@@ -7,4 +7,3 @@ class DeviceArgs:
     node_num: int = field(default=1)
     gpu_memory_limit: int = field(default=0)
     gpu_type: str = field(default='A100')
-
