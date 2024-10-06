@@ -1,6 +1,7 @@
 from typing import Dict
 
 from data_args import DataArgs
+from device_args import DeviceArgs
 from finetuning_args import FinetuningArgs
 from model_args import ModelArgs
 from optimizer_args import OptimizerArgs
@@ -13,14 +14,15 @@ class VRAMCalculator:
         finetuning_args: FinetuningArgs,
         optimizer_args: OptimizerArgs,
         data_args: DataArgs,
-        num_gpus: int = 1,
+        device_args: DeviceArgs,
         unit: str = "MiB"
     ):
         self.model_args = model_args
         self.finetuning_args = finetuning_args
         self.optimizer_args = optimizer_args
         self.data_args = data_args
-        self.num_gpus = num_gpus
+        self.device_args = device_args
+        self.num_gpus = 1
         self.unit = unit
         self.divisor = 2 ** 20 if unit == "MiB" else 2 ** 30
         self.precision = 0 if unit == "MiB" else 3

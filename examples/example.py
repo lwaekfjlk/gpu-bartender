@@ -4,6 +4,7 @@ import sys
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from gpu_bartender.server import (
     DataArgs,
+    DeviceArgs,
     FinetuningArgs,
     ModelArgs,
     OptimizerArgs,
@@ -36,12 +37,16 @@ finetuning_args = FinetuningArgs(
     is_fsdp=True
 )
 
+device_args = DeviceArgs(
+    gpu_num=4,
+)
+
 calculator = VRAMCalculator(
     model_args=model_args,
     finetuning_args=finetuning_args,
     optimizer_args=optimizer_args,
     data_args=data_args,
-    num_gpus=4,
+    device_args=device_args,
     unit="MiB"
 )
 
