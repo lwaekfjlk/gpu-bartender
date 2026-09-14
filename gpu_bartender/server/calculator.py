@@ -1,4 +1,3 @@
-from typing import Dict
 
 from data_args import DataArgs
 from device_args import DeviceArgs
@@ -160,7 +159,7 @@ class VRAMCalculator:
             raise ValueError("Second moments are only calculated for Adam optimizer")
         return self.round_num(second_moments / self.divisor)
 
-    def estimate_result(self) -> Dict[str, float]:
+    def estimate_result(self) -> dict[str, float]:
         result_estimation = {
             'cudaKernels': self.calculate_cuda_kernels(),
             'parameters': self.calculate_parameters(),
@@ -173,7 +172,7 @@ class VRAMCalculator:
 
         return result_estimation
 
-    def get_total_usage_per_gpu(self, result_estimation: Dict[str, float], is_first: bool) -> float:
+    def get_total_usage_per_gpu(self, result_estimation: dict[str, float], is_first: bool) -> float:
         total_usage = (
             result_estimation['cudaKernels'] +
             result_estimation['parameters'] +
