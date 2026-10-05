@@ -6,10 +6,10 @@ from .model_args import ModelArgs
 from .optimizer_args import OptimizerArgs
 
 __all__ = [
-    'VRAMCalculator',
-    'ModelArgs',
-    'FinetuningArgs',
-    'OptimizerArgs',
     'DataArgs',
-    'DeviceArgs'
+    'DeviceArgs',
+    'FinetuningArgs',
+    'ModelArgs',
+    'OptimizerArgs',
+    'VRAMCalculator'
 ]
